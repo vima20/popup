@@ -15,7 +15,10 @@
 ✅ Lisätä teemat (vaalea/tumma)
 
 ## Testaus
-❌ Kirjoittaa yksikkötestit
+✅ Kirjoittaa yksikkötestit
+  ✅ Overlay.spec.ts
+  ✅ App.spec.ts
+  ✅ Content Script (index.spec.ts)
 ❌ Kirjoittaa e2e-testit
 ❌ Testata eri selaimissa
 ❌ Testata eri YouTube-sivuilla
@@ -33,7 +36,6 @@
 ❌ Julkaista laajennus
 
 ## Seuraavat prioriteetit
-1. Yksikkötestien kirjoittaminen
-2. E2E-testien kirjoittaminen
-3. Selainkohtaiset testit
-4. Julkaisun valmistelu 
+1. E2E-testien kirjoittaminen
+2. Selainkohtaiset testit
+3. Julkaisun valmistelu 

@@ -31,4 +31,21 @@
 - Lisätty CSS-tiedoston määritys manifest.json tiedostoon
 
 ### Poistettu
+- Ei poistoja
+
+## 2024-03-19 (Testien päivitys)
+### Lisätty
+- Lisätty kattavat yksikkötestit:
+  - Overlay.spec.ts: Komponentin renderöinti, props, näkyvyys, tyylit ja näppäinyhdistelmän käsittely
+  - App.spec.ts: Popup-komponentin renderöinti, otsikko, tyylit ja versionumero
+  - Content Script (index.spec.ts): DOM-manipulaatio ja näppäinyhdistelmän käsittely
+- Lisätty mockit event listenereille ja DOM-elementeille
+- Lisätty negatiiviset testit näppäinyhdistelmille
+
+### Muutettu
+- Päivitetty Overlay-komponentin toteutus käyttämään isVisible propia ref:n sijaan
+- Päivitetty testit vastaamaan uutta toteutusta
+- Poistettu turha toggle-napin testi App.spec.ts tiedostosta
+
+### Poistettu
 - Ei poistoja 

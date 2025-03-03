@@ -10,16 +10,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 
-const isVisible = ref(false)
+defineProps<{
+  isVisible: boolean
+}>()
 
 // Toggle visibility when CTRL + F3 is pressed
 const handleKeyPress = (event: KeyboardEvent) => {
   if (event.ctrlKey && event.key === 'F3') {
-    isVisible.value = !isVisible.value
+    emit('update:isVisible', !isVisible)
   }
 }
+
+const emit = defineEmits<{
+  'update:isVisible': [value: boolean]
+}>()
 
 // Add event listener when component is mounted
 onMounted(() => {
