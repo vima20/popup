@@ -19,7 +19,10 @@
   ✅ Overlay.spec.ts
   ✅ App.spec.ts
   ✅ Content Script (index.spec.ts)
-❌ Kirjoittaa e2e-testit
+✅ Kirjoittaa e2e-testit
+  ✅ Overlay-toiminnallisuus
+  ✅ Popup-ikkuna
+  ✅ Näppäinyhdistelmät
 ❌ Testata eri selaimissa
 ❌ Testata eri YouTube-sivuilla
 
@@ -36,6 +39,5 @@
 ❌ Julkaista laajennus
 
 ## Seuraavat prioriteetit
-1. E2E-testien kirjoittaminen
-2. Selainkohtaiset testit
-3. Julkaisun valmistelu 
+1. Selainkohtaiset testit
+2. Julkaisun valmistelu 

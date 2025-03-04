@@ -6,6 +6,7 @@
 - Tailwind CSS on tehokas tyylittelyyn, mutta vaatii huomiota bundle-koon kanssa
 - Chrome Extension Manifest V3 vaatii erityisen huomion moduulityyppien kanssa
 - Vue-komponenttien testaus vaatii huomiota event listenerien mockaamiseen ja siivomiseen
+- Selainlaajennusten E2E-testaus vaatii erityisen huomion mockien ja custom-komentojen käyttöön
 
 ## Virheiden ratkaisut
 ### WebExtensions API
@@ -28,6 +29,9 @@
 - Mockit pitää siivota afterEach-hookissa
 - Negatiiviset testit ovat tärkeitä näppäinyhdistelmien testauksessa
 - DOM-elementtien mockaaminen vaatii huomiota globaaleihin objekteihin
+- E2E-testauksessa custom-komentoja kannattaa käyttää yleisten toimintojen toistamiseen
+- Selainlaajennusten testauksessa chrome API:n mockaaminen on välttämätöntä
+- Näppäinyhdistelmien testaus vaatii erityisen huomion eventien simulointiin
 
 ## Parhaat käytännöt
 1. **Koodin organisointi**
@@ -54,4 +58,6 @@
    - Kattavat yksikkötestit
    - Mockien oikea käyttö
    - Negatiivisten testien kirjoittaminen
-   - Testien siivous 
+   - Testien siivous
+   - Custom-komentojen käyttö yleisten toimintojen toistamiseen
+   - Selainkohtaiset testit eri ympäristöissä 

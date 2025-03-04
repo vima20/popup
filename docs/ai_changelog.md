@@ -48,4 +48,23 @@
 - Poistettu turha toggle-napin testi App.spec.ts tiedostosta
 
 ### Poistettu
+- Ei poistoja
+
+## 2024-03-19 (E2E-testien lisäys)
+### Lisätty
+- Lisätty Cypress-konfiguraatio selainlaajennuksen testaamista varten
+- Lisätty custom Cypress-komennot:
+  - loadExtension: Laajennuksen lataus ja mockit
+  - pressKeyCombination: Näppäinyhdistelmien simulointi
+  - checkOverlay: Overlay-komponentin tarkistus
+- Lisätty E2E-testit:
+  - overlay.cy.ts: Overlay-toiminnallisuuden testit
+  - popup.cy.ts: Popup-ikkunan testit
+- Lisätty testit näppäinyhdistelmille ja tyyleille
+
+### Muutettu
+- Päivitetty todo.md vastaamaan E2E-testien tilaa
+- Päivitetty Cypress-konfiguraatio tukemaan selainlaajennuksen testaamista
+
+### Poistettu
 - Ei poistoja 
