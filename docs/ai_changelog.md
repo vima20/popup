@@ -1,4 +1,14 @@
-# Muutosloki
+# AI Changelog
+
+## [2024-03-20]
+- Korjattu YouTube Overlay -laajennuksen toiminnallisuus
+  - Lisätty oikeat oikeudet manifest.json-tiedostoon
+  - Korjattu viestintä popup-ikkunan ja content scriptin välillä
+  - Korjattu Chrome Storage API:n käyttö
+- Päivitetty dokumentaatio vastaamaan toteutettua ratkaisua
+  - Lisätty kuvaus sovelluksesta (description.md)
+  - Päivitetty tekninen arkkitehtuuri (architecture.md)
+  - Lisätty käyttöliittymän dokumentaatio (frontend.md)
 
 ## 2024-03-19
 ### Lisätty
@@ -67,4 +77,24 @@
 - Päivitetty Cypress-konfiguraatio tukemaan selainlaajennuksen testaamista
 
 ### Poistettu
-- Ei poistoja 
+- Ei poistoja
+
+## [2024-03-XX] YouTube Overlay -laajennuksen korjaukset
+
+### Korjattu
+- Overlay-komponentin reaktiivisuus ja tilan hallinta
+- Content scriptin resurssien hallinta ja siivous
+- TypeScript-tyyppien määrittelyt
+- Event handlerien käsittely ja siivous
+
+### Lisätty
+- Cleanup-funktio resurssien vapauttamiseen
+- Unload event handleri
+- Debug-loggaus
+- Event.preventDefault() F3-näppäimelle
+
+### Tekninen velka
+- Yksikkötestien lisääminen
+- E2E-testien kirjoittaminen
+- Suorituskyvyn optimointi
+- Koodin refaktorointi modulaarisemmaksi 

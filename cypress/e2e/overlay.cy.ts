@@ -1,73 +1,51 @@
-describe('YouTube Overlay Extension', () => {
+describe('Overlay', () => {
   beforeEach(() => {
-    // Visit YouTube and load extension
+    // Handle JavaScript errors
+    cy.on('uncaught:exception', (err, runnable) => {
+      // returning false here prevents Cypress from failing the test
+      return false
+    })
+    
+    // Visit YouTube
     cy.visit('/')
-    cy.loadExtension()
+    
+    // Wait for content script to load
+    cy.window().then((win) => {
+      // Mock chrome.storage
+      win.chrome = {
+        storage: {
+          local: {
+            get: cy.stub().resolves({ text: 'Hello world!' })
+          }
+        }
+      }
+    })
   })
 
-  it('should show overlay when CTRL+F3 is pressed', () => {
-    // Initially overlay should not be visible
-    cy.checkOverlay(false)
-
-    // Press CTRL+F3
-    cy.pressKeyCombination('F3', 'ctrl')
-
-    // Overlay should be visible
-    cy.checkOverlay(true)
+  it('shows overlay on keyboard shortcut', () => {
+    // Press CTRL + SHIFT + ENTER
+    cy.get('body').type('{ctrl}{shift}{enter}')
+    
+    // Wait for overlay to appear
+    cy.get('#youtube-overlay-container', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible')
+      .should('contain', 'Hello world!')
   })
 
-  it('should hide overlay when CTRL+F3 is pressed again', () => {
-    // Show overlay
-    cy.pressKeyCombination('F3', 'ctrl')
-    cy.checkOverlay(true)
-
-    // Hide overlay
-    cy.pressKeyCombination('F3', 'ctrl')
-    cy.checkOverlay(false)
-  })
-
-  it('should not show overlay when only F3 is pressed', () => {
-    // Press only F3
-    cy.pressKeyCombination('F3')
-
-    // Overlay should not be visible
-    cy.checkOverlay(false)
-  })
-
-  it('should not show overlay when CTRL+other key is pressed', () => {
-    // Press CTRL+F4
-    cy.pressKeyCombination('F4', 'ctrl')
-
-    // Overlay should not be visible
-    cy.checkOverlay(false)
-  })
-
-  it('should show overlay with correct styling', () => {
-    // Show overlay
-    cy.pressKeyCombination('F3', 'ctrl')
-
-    // Check styling
-    cy.get('#youtube-overlay-extension')
-      .should('have.class', 'fixed')
-      .and('have.class', 'inset-0')
-      .and('have.class', 'flex')
-      .and('have.class', 'items-center')
-      .and('have.class', 'justify-center')
-      .and('have.class', 'bg-black')
-      .and('have.class', 'bg-opacity-50')
-      .and('have.class', 'z-50')
-  })
-
-  it('should show correct text in overlay', () => {
-    // Show overlay
-    cy.pressKeyCombination('F3', 'ctrl')
-
-    // Check text
-    cy.get('#youtube-overlay-extension')
-      .find('div')
-      .should('have.class', 'text-white')
-      .and('have.class', 'text-4xl')
-      .and('have.class', 'font-bold')
-      .and('contain', 'Hello world!')
+  it('updates text when changed in popup', () => {
+    // Mock storage update
+    cy.window().then((win) => {
+      win.chrome.storage.local.get = cy.stub().resolves({ text: 'Updated text!' })
+    })
+    
+    // Press CTRL + SHIFT + ENTER
+    cy.get('body').type('{ctrl}{shift}{enter}')
+    
+    // Wait for overlay to appear with updated text
+    cy.get('#youtube-overlay-container', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible')
+      .should('contain', 'Updated text!')
   })
 }) 

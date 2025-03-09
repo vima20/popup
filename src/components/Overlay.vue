@@ -1,39 +1,54 @@
 <template>
-  <div
-    v-if="isVisible"
-    class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-  >
-    <div class="text-white text-4xl font-bold">
-      Hello world!
+  <Transition name="fade">
+    <div
+      v-if="modelValue"
+      ref="container"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div class="text-white text-4xl font-bold animate-bounce">
+        {{ text }}
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-defineProps<{
-  isVisible: boolean
+const props = defineProps<{
+  modelValue: boolean
+  text: string
 }>()
 
-// Toggle visibility when CTRL + F3 is pressed
-const handleKeyPress = (event: KeyboardEvent) => {
-  if (event.ctrlKey && event.key === 'F3') {
-    emit('update:isVisible', !isVisible)
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void
+}>()
+
+const container = ref<HTMLElement | null>(null)
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'o') {
+    emit('update:modelValue', !props.modelValue)
   }
 }
 
-const emit = defineEmits<{
-  'update:isVisible': [value: boolean]
-}>()
-
-// Add event listener when component is mounted
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyPress)
+  document.addEventListener('keydown', handleKeydown)
 })
 
-// Remove event listener when component is unmounted
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyPress)
+  document.removeEventListener('keydown', handleKeydown)
 })
-</script> 
+</script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

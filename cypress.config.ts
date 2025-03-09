@@ -3,11 +3,11 @@ import { defineConfig } from 'cypress'
 export default defineConfig({
   e2e: {
     baseUrl: 'https://www.youtube.com',
-    supportFile: 'cypress/support/e2e.ts',
-    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
-    video: false,
-    screenshotOnRunFailure: true,
     chromeWebSecurity: false,
+    supportFile: 'cypress/support/e2e.ts',
+    specPattern: 'cypress/e2e/**/*.cy.ts',
+    video: true,
+    screenshotOnRunFailure: true,
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
@@ -16,6 +16,7 @@ export default defineConfig({
     devServer: {
       framework: 'vue',
       bundler: 'vite',
+      port: 5173
     },
   },
 }) 

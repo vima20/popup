@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Overlay",
+  "version": "1.0",
+  "description": "Shows text overlay on YouTube videos",
+  "permissions": ["storage"],
+  "host_permissions": ["*://*.youtube.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [{
+    "matches": ["*://*.youtube.com/*"],
+    "js": ["content.js"]
+  }],
+  "action": {
+    "default_popup": "popup.html"
+  }
+} 

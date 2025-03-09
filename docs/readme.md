@@ -1,7 +1,7 @@
 # YouTube Overlay Extension
 
 ## Kuvaus
-Tämä on selainlaajennus, joka näyttää "Hello world!" -tekstin YouTube-videoiden päällä kun käyttäjä painaa "CTRL + F3" -näppäinyhdistelmää.
+Tämä on selainlaajennus, joka näyttää "Hello world!" -tekstin YouTube-videoiden päällä kun käyttäjä painaa "CTRL + SHIFT + F3" -näppäinyhdistelmää.
 
 ## Teknologiat
 - Frontend: Vue 3 + TypeScript

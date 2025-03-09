@@ -60,4 +60,33 @@
    - Negatiivisten testien kirjoittaminen
    - Testien siivous
    - Custom-komentojen käyttö yleisten toimintojen toistamiseen
-   - Selainkohtaiset testit eri ympäristöissä 
+   - Selainkohtaiset testit eri ympäristöissä
+
+# Opitut asiat ja parhaat käytännöt
+
+## Chrome Extension Development
+
+### Oikeudet ja manifest.json
+- Varmista oikeat `permissions` ja `host_permissions` manifest.json-tiedostossa
+- Käytä manifest v3:a uusissa laajennuksissa
+- Määrittele content scriptit tarkasti vain tarvittaville sivuille
+
+### Viestintä komponenttien välillä
+- Käytä Chrome Runtime Messaging API:a viestintään
+- Varmista async/await-käyttö viestinnässä
+- Käsittele virhetilanteet ja vastaa viesteihin
+
+### Chrome Storage API
+- Käytä `chrome.storage.sync` datan tallentamiseen
+- Huomioi asynkronisuus storage-operaatioissa
+- Varmista oikeudet storage-käyttöön manifestissa
+
+### Vue.js Chrome-laajennuksessa
+- Käytä Vue 3:n Composition API:a
+- Huomioi Vue-sovelluksen alustus popup-ikkunassa
+- Varmista tyylikirjastojen (Tailwind) toimivuus
+
+### Virheenkorjaus
+- Käytä Chrome DevTools:ia laajennuksen debuggaukseen
+- Tarkista console.log-viestit background ja content scripteistä
+- Testaa eri YouTube-sivuilla toimivuus 

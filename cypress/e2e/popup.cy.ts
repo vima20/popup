@@ -1,40 +1,66 @@
-describe('Popup Window', () => {
+describe('Popup', () => {
   beforeEach(() => {
+    // Mock chrome.storage
+    cy.window().then((win) => {
+      win.chrome = {
+        storage: {
+          local: {
+            get: cy.stub().resolves({ text: 'Hello world!' }),
+            set: cy.stub().resolves({})
+          }
+        }
+      }
+    })
+    
     // Visit popup page
-    cy.visit('popup.html')
-  })
-
-  it('should render popup window', () => {
-    cy.get('body').should('exist')
+    cy.visit('/popup.html')
+    
+    // Wait for page to load
     cy.get('#app').should('exist')
   })
 
-  it('should show correct title', () => {
-    cy.get('h1')
-      .should('have.class', 'text-xl')
-      .and('have.class', 'font-bold')
-      .and('have.class', 'mb-4')
-      .and('contain', 'YouTube Overlay Extension')
+  it('opens popup and displays content', () => {
+    // Check title
+    cy.get('h1').should('contain', 'YouTube Overlay Extension')
+    
+    // Check styling
+    cy.get('.bg-gray-800').should('exist')
+    
+    // Check input field
+    cy.get('input[type="text"]')
+      .should('exist')
+      .should('have.value', 'Hello world!')
+    
+    // Check save button
+    cy.get('button')
+      .should('contain', 'Save')
+    
+    // Check status indicator
+    cy.get('.status-indicator').should('exist')
+    
+    // Check keyboard shortcut info
+    cy.get('.shortcut-info').should('contain', 'CTRL + SHIFT + ENTER')
   })
 
-  it('should show keyboard shortcut info', () => {
-    cy.get('p')
-      .should('have.class', 'text-sm')
-      .and('have.class', 'text-gray-600')
-      .and('have.class', 'mb-4')
-      .and('contain', 'Press CTRL + F3 to toggle the overlay on YouTube videos.')
-  })
-
-  it('should show version number', () => {
-    cy.get('div')
-      .should('have.class', 'text-xs')
-      .and('have.class', 'text-gray-500')
-      .and('contain', 'Version: 1.0.0')
-  })
-
-  it('should have correct container styling', () => {
-    cy.get('div')
-      .should('have.class', 'p-4')
-      .and('have.class', 'w-64')
+  it('saves custom text', () => {
+    const customText = 'Custom overlay text'
+    
+    // Type new text
+    cy.get('input[type="text"]')
+      .clear()
+      .type(customText)
+    
+    // Click save button
+    cy.get('button').click()
+    
+    // Verify storage was updated
+    cy.window().then((win) => {
+      expect(win.chrome.storage.local.set).to.be.calledWith({
+        text: customText
+      })
+    })
+    
+    // Check status indicator
+    cy.get('.status-indicator').should('contain', 'Saved')
   })
 }) 

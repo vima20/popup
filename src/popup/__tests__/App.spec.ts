@@ -1,32 +1,60 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import App from '../App.vue'
 
-describe('Popup App', () => {
+describe('App', () => {
   let wrapper: any
 
   beforeEach(() => {
-    wrapper = mount(App)
+    // Create a div for mounting
+    const div = document.createElement('div')
+    document.body.appendChild(div)
+    
+    wrapper = mount(App, {
+      attachTo: div
+    })
   })
 
   it('renders properly', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
+  it('loads text from storage on mount', async () => {
+    await wrapper.vm.$nextTick()
+    expect(chrome.storage.sync.get).toHaveBeenCalledWith('overlayText')
+  })
+
+  it('saves text to storage on change', async () => {
+    const input = wrapper.find('input[type="text"]')
+    await input.setValue('New text')
+    await wrapper.find('button').trigger('click')
+    expect(chrome.storage.sync.set).toHaveBeenCalledWith({ overlayText: 'New text' })
+  })
+
   it('has correct title', () => {
-    expect(wrapper.text()).toContain('YouTube Overlay Extension')
+    expect(wrapper.find('h1').text()).toBe('YouTube Overlay Extension')
   })
 
   it('has correct styling classes', () => {
-    expect(wrapper.classes()).toContain('p-4')
-    expect(wrapper.classes()).toContain('w-64')
+    expect(wrapper.find('.container').exists()).toBe(true)
+    expect(wrapper.find('.bg-white').exists()).toBe(true)
   })
 
-  it('has keyboard shortcut info', () => {
-    expect(wrapper.text()).toContain('Press CTRL + F3 to toggle the overlay on YouTube videos.')
+  it('displays keyboard shortcut information', () => {
+    expect(wrapper.text()).toContain('CTRL + SHIFT + O')
   })
 
-  it('shows version number', () => {
-    expect(wrapper.text()).toContain('Version: 1.0.0')
+  it('has custom text input', () => {
+    expect(wrapper.find('input[type="text"]').exists()).toBe(true)
+  })
+
+  it('has save button', () => {
+    expect(wrapper.find('button').exists()).toBe(true)
+    expect(wrapper.find('button').text()).toBe('Save')
+  })
+
+  it('shows status indicator', async () => {
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.find('.status-indicator').exists()).toBe(true)
   })
 }) 

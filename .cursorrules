@@ -1,7 +1,7 @@
 ​.cursorrules
 
 <project>
-You want a Vue application that displays "Hello world!" on top of any YouTube video you’re watching when you press "CTRL + F3". This implies a browser-based solution, likely a browser extension or userscript, built with Vue to inject content into YouTube pages.
+You want a Vue application that displays "Hello world!" on top of any YouTube video you’re watching when you press "CTRL + SHIFT + F3". This implies a browser-based solution, likely a browser extension or userscript, built with Vue to inject content into YouTube pages.
 </project>
 
 <Project Technologies>

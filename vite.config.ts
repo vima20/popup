@@ -2,27 +2,51 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
-export default defineConfig({
-  plugins: [vue()],
-  build: {
-    rollupOptions: {
-      input: {
-        popup: resolve(__dirname, 'src/popup/index.html'),
-        content: resolve(__dirname, 'src/content/index.ts'),
-        background: resolve(__dirname, 'src/background/index.ts'),
+// Luodaan erilliset konfiguraatiot jokaiselle entry pointille
+export default defineConfig([
+  {
+    plugins: [vue()],
+    build: {
+      outDir: 'dist',
+      lib: {
+        entry: resolve(__dirname, 'src/content.ts'),
+        name: 'content',
+        fileName: 'content',
+        formats: ['iife']
       },
-      output: {
-        entryFileNames: '[name].js',
-        chunkFileNames: '[name].js',
-        assetFileNames: '[name].[ext]'
-      }
-    },
-    outDir: 'dist',
-    emptyOutDir: true
+      emptyOutDir: false,
+      target: 'es2015',
+      minify: false
+    }
   },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src')
+  {
+    plugins: [vue()],
+    build: {
+      outDir: 'dist',
+      lib: {
+        entry: resolve(__dirname, 'src/background.ts'),
+        name: 'background',
+        fileName: 'background',
+        formats: ['iife']
+      },
+      emptyOutDir: false,
+      target: 'es2015',
+      minify: false
+    }
+  },
+  {
+    plugins: [vue()],
+    build: {
+      outDir: 'dist',
+      lib: {
+        entry: resolve(__dirname, 'src/popup/index.ts'),
+        name: 'popup',
+        fileName: 'popup',
+        formats: ['iife']
+      },
+      emptyOutDir: false,
+      target: 'es2015',
+      minify: false
     }
   }
-}) 
+]) 

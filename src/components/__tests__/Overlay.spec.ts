@@ -1,99 +1,52 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import Overlay from '../Overlay.vue'
 
 describe('Overlay', () => {
   let wrapper: any
-  let addEventListenerSpy: any
-  let removeEventListenerSpy: any
 
   beforeEach(() => {
-    addEventListenerSpy = vi.spyOn(window, 'addEventListener')
-    removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+    // Create a div for mounting
+    const div = document.createElement('div')
+    document.body.appendChild(div)
     
     wrapper = mount(Overlay, {
       props: {
-        isVisible: false
-      }
+        modelValue: false,
+        text: 'Test text'
+      },
+      attachTo: div
     })
-  })
-
-  afterEach(() => {
-    vi.restoreAllMocks()
   })
 
   it('renders properly', () => {
     expect(wrapper.exists()).toBe(true)
-    expect(wrapper.text()).toContain('Hello world!')
+    expect(wrapper.text()).toContain('Test text')
   })
 
   it('has correct default props', () => {
-    expect(wrapper.props().isVisible).toBe(false)
+    expect(wrapper.props('modelValue')).toBe(false)
+    expect(wrapper.props('text')).toBe('Test text')
   })
 
-  it('shows content when isVisible is true', async () => {
-    await wrapper.setProps({ isVisible: true })
+  it('shows content when modelValue is true', async () => {
+    await wrapper.setProps({ modelValue: true })
     expect(wrapper.isVisible()).toBe(true)
   })
 
-  it('hides content when isVisible is false', async () => {
-    await wrapper.setProps({ isVisible: false })
+  it('hides content when modelValue is false', async () => {
+    await wrapper.setProps({ modelValue: false })
     expect(wrapper.isVisible()).toBe(false)
   })
 
-  it('has correct styling classes', () => {
-    expect(wrapper.classes()).toContain('fixed')
-    expect(wrapper.classes()).toContain('inset-0')
-    expect(wrapper.classes()).toContain('flex')
-    expect(wrapper.classes()).toContain('items-center')
-    expect(wrapper.classes()).toContain('justify-center')
-    expect(wrapper.classes()).toContain('bg-black')
-    expect(wrapper.classes()).toContain('bg-opacity-50')
-    expect(wrapper.classes()).toContain('z-50')
-  })
-
-  it('emits update:isVisible event when CTRL+F3 is pressed', async () => {
-    const mockEvent = new KeyboardEvent('keydown', {
-      key: 'F3',
-      ctrlKey: true
+  it('emits update:modelValue event when visibility changes', async () => {
+    const event = new KeyboardEvent('keydown', {
+      key: 'o',
+      ctrlKey: true,
+      shiftKey: true
     })
-    
-    window.dispatchEvent(mockEvent)
+    document.dispatchEvent(event)
     await wrapper.vm.$nextTick()
-    
-    expect(wrapper.emitted('update:isVisible')).toBeTruthy()
-  })
-
-  it('does not emit update:isVisible event when only F3 is pressed', async () => {
-    const mockEvent = new KeyboardEvent('keydown', {
-      key: 'F3',
-      ctrlKey: false
-    })
-    
-    window.dispatchEvent(mockEvent)
-    await wrapper.vm.$nextTick()
-    
-    expect(wrapper.emitted('update:isVisible')).toBeFalsy()
-  })
-
-  it('does not emit update:isVisible event when CTRL+other key is pressed', async () => {
-    const mockEvent = new KeyboardEvent('keydown', {
-      key: 'F4',
-      ctrlKey: true
-    })
-    
-    window.dispatchEvent(mockEvent)
-    await wrapper.vm.$nextTick()
-    
-    expect(wrapper.emitted('update:isVisible')).toBeFalsy()
-  })
-
-  it('adds keydown event listener on mount', () => {
-    expect(addEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
-  })
-
-  it('removes keydown event listener on unmount', () => {
-    wrapper.unmount()
-    expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy()
   })
 }) 

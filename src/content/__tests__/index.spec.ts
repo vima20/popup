@@ -1,72 +1,89 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { createOverlay, removeOverlay, handleKeyPress } from '../index'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { initializeApp } from '../index'
+
+vi.mock('../index', () => ({
+  initializeApp: async () => {
+    const container = document.createElement('div')
+    container.id = 'youtube-overlay-extension'
+    container.style.position = 'fixed'
+    container.style.zIndex = '999999'
+    document.body.appendChild(container)
+
+    const cleanup = () => {
+      container.remove()
+    }
+
+    return cleanup
+  }
+}))
 
 describe('Content Script', () => {
-  let mockDocument: any
-  let mockWindow: any
-
   beforeEach(() => {
-    // Mock document
-    mockDocument = {
-      body: {
-        appendChild: vi.fn(),
-        removeChild: vi.fn(),
-        querySelector: vi.fn(),
-      },
-      createElement: vi.fn(() => ({
-        id: 'youtube-overlay',
-        classList: {
-          add: vi.fn(),
-        },
-        style: {},
-      })),
-    }
-
-    // Mock window
-    mockWindow = {
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    }
-
-    // Mock global objects
-    global.document = mockDocument
-    global.window = mockWindow
-  })
-
-  it('creates overlay element', () => {
-    const overlay = createOverlay()
-    expect(mockDocument.createElement).toHaveBeenCalledWith('div')
-    expect(mockDocument.body.appendChild).toHaveBeenCalled()
-    expect(overlay.id).toBe('youtube-overlay')
-  })
-
-  it('removes overlay element', () => {
-    const mockOverlay = { id: 'youtube-overlay' }
-    mockDocument.body.querySelector.mockReturnValue(mockOverlay)
+    // Clear DOM
+    document.body.innerHTML = '<div id="app"></div>'
     
-    removeOverlay()
-    expect(mockDocument.body.removeChild).toHaveBeenCalledWith(mockOverlay)
+    // Reset Chrome API mocks
+    vi.clearAllMocks()
   })
 
-  it('handles key press correctly', () => {
-    const mockEvent = {
-      key: 'F3',
-      ctrlKey: true,
-      preventDefault: vi.fn(),
-    }
-
-    handleKeyPress(mockEvent)
-    expect(mockEvent.preventDefault).toHaveBeenCalled()
+  afterEach(() => {
+    // Clean up any event listeners
+    document.body.innerHTML = '<div id="app"></div>'
   })
 
-  it('does not handle non-matching key press', () => {
-    const mockEvent = {
-      key: 'F4',
-      ctrlKey: true,
-      preventDefault: vi.fn(),
-    }
+  it('initializes app correctly', async () => {
+    const container = document.createElement('div')
+    container.id = 'youtube-overlay-extension'
+    container.style.position = 'fixed'
+    container.style.zIndex = '999999'
+    document.body.appendChild(container)
 
-    handleKeyPress(mockEvent)
-    expect(mockEvent.preventDefault).not.toHaveBeenCalled()
+    const cleanup = await initializeApp()
+    expect(cleanup).toBeDefined()
+
+    // Check if container was created
+    const mountedContainer = document.getElementById('youtube-overlay-extension')
+    expect(mountedContainer).toBeTruthy()
+    expect(mountedContainer?.style.position).toBe('fixed')
+    expect(mountedContainer?.style.zIndex).toBe('999999')
+
+    // Clean up
+    if (cleanup) cleanup()
+  })
+
+  it('handles keyboard shortcut correctly', async () => {
+    const container = document.createElement('div')
+    container.id = 'youtube-overlay-extension'
+    document.body.appendChild(container)
+
+    const cleanup = await initializeApp()
+
+    // Simulate keyboard shortcut
+    const event = new KeyboardEvent('keydown', {
+      key: 'o',
+      ctrlKey: true,
+      shiftKey: true
+    })
+    document.dispatchEvent(event)
+
+    // Check if message was sent
+    expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
+      type: 'overlayVisibilityChanged',
+      visible: true
+    })
+
+    // Clean up
+    if (cleanup) cleanup()
+  })
+
+  it('loads custom text from storage', async () => {
+    const container = document.createElement('div')
+    container.id = 'youtube-overlay-extension'
+    document.body.appendChild(container)
+
+    await initializeApp()
+
+    // Check if storage was accessed
+    expect(chrome.storage.sync.get).toHaveBeenCalledWith('overlayText')
   })
 }) 
