@@ -64,6 +64,63 @@
 
 # Opitut asiat ja parhaat käytännöt
 
+## Chrome-laajennukset
+
+### Tietoturvarajoitukset
+1. Content Security Policy (CSP) estää:
+   - Ulkoisten skriptien lataamisen (esim. CDN)
+   - Inline-skriptien suorittamisen
+   - ES moduulien käytön service workerissa
+
+### Viestintä komponenttien välillä
+1. Chrome Storage API
+   - Luotettavin tapa välittää tietoa komponenttien välillä
+   - Automaattinen synkronointi kaikkien komponenttien välillä
+   - Tukee sekä synkronista että asynkronista tallennusta
+
+2. Message Passing
+   - Vaatii että vastaanottaja on ladattu ja aktiivinen
+   - Background script voi toimia keskitettynä koordinaattorina
+   - Asynkronisissa viesteissä pitää palauttaa true ja käyttää sendResponse
+
+### Content Script
+1. Latausjärjestys
+   - `document_end` on yleensä paras ajankohta
+   - Varmista että DOM on valmis ennen manipulointia
+   - Käytä `readyState` tarkistusta
+
+2. Suorituskerrat
+   - Varmista että content script ajetaan vain kerran
+   - Käytä globaalia muuttujaa tarkistukseen
+   - Puhdista vanhat resurssit ennen uudelleenalustusta
+
+3. Debug
+   - Lisää kattava lokitus ongelmien selvittämiseen
+   - Käytä Chrome DevTools:n Console-välilehteä
+   - Lokita kaikki tärkeät tapahtumat ja tilamuutokset
+
+### Popup-ikkuna
+1. HTML/CSS/JavaScript
+   - Pidä yksinkertaisena
+   - Vältä raskaita kirjastoja
+   - Käytä perinteistä DOM-manipulointia
+
+2. Tyylit
+   - Määrittele tyylit suoraan HTML-tiedostossa
+   - Käytä selkeitä luokkanimiä
+   - Huomioi responsiivisuus
+
+### Virheenkäsittely
+1. Yleiset virheet
+   - "Could not establish connection" = vastaanottaja ei ole ladattu
+   - CSP-virheet = tietoturvarajoitukset estävät toiminnon
+   - Storage-virheet = tarkista oikeudet manifestissa
+
+2. Ratkaisut
+   - Käytä storage:a viestien sijaan
+   - Siirrä skriptit erillisiin tiedostoihin
+   - Lisää debug-lokitus ongelmien selvittämiseen
+
 ## Chrome Extension Development
 
 ### Oikeudet ja manifest.json

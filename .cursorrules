@@ -1,7 +1,7 @@
 ​.cursorrules
 
 <project>
-You want a Vue application that displays "Hello world!" on top of any YouTube video you’re watching when you press "CTRL + SHIFT + F3". This implies a browser-based solution, likely a browser extension or userscript, built with Vue to inject content into YouTube pages.
+You want a Vue application that displays "Hello world!" on top of any YouTube video you're watching when you press "CTRL + SHIFT + F3". This implies a browser-based solution, likely a browser extension or userscript, built with Vue to inject content into YouTube pages.
 </project>
 
 <Project Technologies>
@@ -16,14 +16,14 @@ AI Integration: Utilize AI models for generating summaries (optional)
 Reason: Kept as a potential feature, though not directly tied to the "Hello world!" overlay unless you expand the scope.
 Popup/Overlay Implementation:
 Browser Extension APIs (e.g., Chrome Extension or Firefox WebExtensions API) instead of Windows API
-Reason: Windows API isn’t suitable for web overlays; browser extension APIs allow injecting Vue components into YouTube pages and detecting "CTRL + F3".
+Reason: Windows API isn't suitable for web overlays; browser extension APIs allow injecting Vue components into YouTube pages and detecting "CTRL + Shift + F3".
 Backend: Node.js (optional)
 Reason: Only needed if you add server-side features (e.g., storing video preferences); likely not required for the core functionality.
 Database: None (unless expanded scope requires it)
-Reason: A simple overlay doesn’t need persistent storage.
+Reason: A simple overlay doesn't need persistent storage.
 Deployment:
 Browser Extension Stores (e.g., Chrome Web Store) or local userscript
-Reason: Vercel isn’t ideal for browser extensions; deployment will depend on whether you build an extension or a userscript.
+Reason: Vercel isn't ideal for browser extensions; deployment will depend on whether you build an extension or a userscript.
 </Project Technologies>
 
 <tools>
@@ -439,3 +439,190 @@ Confirm your solution addresses every specified requirement, without adding ANYT
 Your value comes from precision and reliability. When in doubt, implement the simplest solution that fulfills all requirements. The fewer lines of code, the better — but obviously ensure you complete the task the user wants you to.
 
 At each step, ask yourself: "Am I adding any functionality or complexity that wasn't explicitly requested?". This will force you to stay on track.
+
+# Vue.js TypeScript Best Practices
+
+## Koodityyli ja rakenne
+
+### Prioriteetit
+1. Web Vitals optimointi (LCP, CLS, FID)
+2. TypeScript tyyppien oikeellisuus
+3. Komponenttien uudelleenkäytettävyys
+4. Suorituskyky ja bundle-koko
+5. Testattavuus
+
+### Tiedostorakenne
+```
+src/
+├── components/        # Jaetut komponentit
+│   ├── ui/           # Yleiset UI-komponentit
+│   └── feature/      # Ominaisuuskohtaiset komponentit
+├── composables/      # Jaetut composable-funktiot
+├── types/           # TypeScript tyypit ja rajapinnat
+├── utils/           # Apufunktiot
+└── views/           # Sivunäkymät
+```
+
+### Nimeämiskäytännöt
+- Hakemistot: lowercase-with-dashes
+- Komponentit: PascalCase.vue
+- Funktiot: camelCase
+- Tyypit/rajapinnat: PascalCase
+- Muuttujat: camelCase apuverbein (isLoading, hasError)
+
+### TypeScript käytännöt
+```typescript
+// Käytä rajapintoja tyyppien sijaan
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Vältä enumeja, käytä mappeja
+const UserRole = {
+  ADMIN: 'admin',
+  USER: 'user',
+} as const;
+type UserRole = typeof UserRole[keyof typeof UserRole];
+
+// Käytä function avainsanaa puhtaille funktioille
+function calculateTotal(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.price, 0);
+}
+
+// Käytä arrow-funktioita callback-funktioille
+const handleClick = (event: MouseEvent): void => {
+  // ...
+};
+```
+
+### Vue.js käytännöt
+```vue
+<script setup lang="ts">
+// Käytä aina script setup syntaksia
+import { ref, computed } from 'vue';
+import type { PropType } from 'vue';
+
+// Määrittele props rajapinnan avulla
+interface Props {
+  items: Item[];
+  isLoading?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false,
+});
+
+// Emitit tyyppimäärittelyllä
+const emit = defineEmits<{
+  (e: 'update', value: string): void;
+  (e: 'submit'): void;
+}>();
+
+// Reaktiiviset muuttujat ref:llä
+const count = ref<number>(0);
+
+// Computed properties tyypitettynä
+const doubleCount = computed<number>(() => count.value * 2);
+
+// Async/await käyttö try-catch blokeissa
+async function fetchData() {
+  try {
+    const data = await api.get();
+    // ...
+  } catch (error) {
+    // Tyypitä error
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+</script>
+```
+
+### Suorituskyky
+```typescript
+// Dynaaminen komponenttien lataus
+const HeavyComponent = defineAsyncComponent(() =>
+  import('./HeavyComponent.vue')
+);
+
+// Suspense käyttö
+<Suspense>
+  <template #default>
+    <AsyncComponent />
+  </template>
+  <template #fallback>
+    <LoadingSpinner />
+  </template>
+</Suspense>
+
+// Kuvien optimointi
+<img
+  src="image.webp"
+  width="800"
+  height="600"
+  loading="lazy"
+  decoding="async"
+  alt="Description"
+/>
+```
+
+### Testaus
+```typescript
+// Komponenttitestit
+import { mount } from '@vue/test-utils';
+import { describe, it, expect } from 'vitest';
+
+describe('Component', () => {
+  it('renders correctly', () => {
+    const wrapper = mount(Component, {
+      props: {
+        // ...
+      },
+    });
+    expect(wrapper.text()).toContain('Expected text');
+  });
+});
+```
+
+### Web Vitals optimointi
+```typescript
+// LCP (Largest Contentful Paint)
+- Käytä resource hints (preload, prefetch)
+- Optimoi kriittiset resurssit
+- Implementoi progressiivinen kuvanlataus
+
+// CLS (Cumulative Layout Shift)
+- Määrittele aina kuvaelementtien koot
+- Käytä skeleton loadereita
+- Vältä dynaamista sisältöä layoutin yläpuolella
+
+// FID (First Input Delay)
+- Jaa JavaScript-koodi pienempiin osiin
+- Käytä Web Workereita raskaille operaatioille
+- Optimoi event handlerit
+```
+
+### Vite konfiguraatio
+```typescript
+// vite.config.ts
+export default defineConfig({
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router'],
+          'ui': ['@headlessui/vue', '@heroicons/vue'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['vue', 'vue-router', '@vueuse/core'],
+  },
+});
+```
+</code_block_to_apply_changes_from>

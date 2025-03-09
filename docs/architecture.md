@@ -1,47 +1,95 @@
-# Tekninen arkkitehtuuri
+# YouTube Overlay - Arkkitehtuuri
 
-## Teknologiapino
+## Tekninen pino
 
-- Frontend Framework: Vue 3
-- Tyylittely: Tailwind CSS
-- Ohjelmointikieli: TypeScript/JavaScript
-- Selainlaajennuksen API: Chrome Extension API v3
+### Frontend
+- **Framework**: Vue 3
+- **Kieli**: TypeScript
+- **Bundler**: Vite
+- **Tyylittely**: CSS (scoped)
+
+### Selainlaajennus
+- **API**: Chrome Extension API
+- **Manifest**: V3
+- **Storage**: Chrome Storage API
 
 ## Kansiorakenne
 
 ```
-/
-├── manifest.json           # Laajennuksen määrittelytiedosto
-├── src/
-│   ├── popup/             # Popup-ikkunan Vue-komponentit
-│   │   ├── App.vue        # Päänäkymä
-│   │   └── popup.html     # HTML-pohja
-│   ├── content.js         # Sisältöskripti YouTube-sivuille
-│   └── background.js      # Taustapalvelu
+├── dist/                 # Käännetyt tiedostot
+│   ├── icons/           # Laajennuksen ikonit
+│   ├── assets/          # CSS ja muut resurssit
+│   ├── content.js       # Content script
+│   ├── popup.js         # Popup-ikkunan koodi
+│   └── background.js    # Taustapalvelu
+│
+├── src/                 # Lähdekoodi
+│   ├── components/      # Vue-komponentit
+│   │   ├── Overlay.vue  # Tekstin overlay-komponentti
+│   │   └── ...
+│   │
+│   ├── composables/     # Vue-composables
+│   │   └── useOverlayText.ts  # Tekstin hallinta
+│   │
+│   ├── content/         # Content script
+│   │   └── index.ts     # YouTube-sivun manipulointi
+│   │
+│   └── popup/           # Popup-ikkuna
+│       ├── App.vue      # Popup-sovelluksen pääkomponentti
+│       └── index.html   # Popup HTML
+│
+├── docs/                # Dokumentaatio
+│   ├── readme.md        # Yleiskuvaus
+│   ├── architecture.md  # Arkkitehtuuri
+│   └── ...
+│
+└── package.json         # Projektin riippuvuudet
 ```
 
 ## Komponentit
 
-1. **Popup (App.vue)**
-   - Käyttöliittymä tekstin muokkaamiseen
-   - Kommunikoi content scriptin kanssa
-   - Käyttää Chrome Storage API:a tallennukseen
+### Content Script
+- Injektoidaan YouTube-sivulle
+- Luo Vue-sovelluksen overlay-tekstille
+- Hallitsee näppäinkomentoja
+- Kommunikoi popup-ikkunan kanssa
 
-2. **Content Script (content.js)**
-   - Luo ja hallinnoi overlay-elementtiä
-   - Kuuntelee näppäinkomentoja
-   - Kommunikoi popup-komponentin kanssa
+### Popup
+- Erillinen Vue-sovellus
+- Mahdollistaa tekstin muokkaamisen
+- Tallentaa tekstin Chrome Storage API:n kautta
+- Kommunikoi content scriptin kanssa
 
-3. **Background Service (background.js)**
-   - Hallinnoi laajennuksen elinkaarta
-   - Käsittelee tapahtumia
+### Background Service
+- Hallitsee laajennuksen elinkaarta
+- Käsittelee tapahtumia taustalla
+
+## Kommunikaatio
+
+```mermaid
+graph TD
+    A[Popup] -->|Chrome Messages| B[Content Script]
+    A -->|Storage API| C[Chrome Storage]
+    B -->|Storage API| C
+    B -->|DOM Manipulation| D[YouTube Page]
+```
 
 ## Tietovirrat
 
-1. Käyttäjä muokkaa tekstiä popup-ikkunassa
-2. Teksti tallennetaan Chrome Storage API:iin
-3. Content script hakee tekstin storage:sta
-4. Overlay päivittyy YouTube-sivulla
+1. **Tekstin tallennus**
+   ```
+   Popup -> Chrome Storage -> Content Script -> Overlay
+   ```
+
+2. **Näppäinkomennot**
+   ```
+   YouTube Page -> Content Script -> Overlay
+   ```
+
+3. **Tilan synkronointi**
+   ```
+   Chrome Storage <-> Content Script <-> Popup
+   ```
 
 ## Testausstrategia
 - Yksikkötestit: Komponenttien ja apufunktioiden testaus

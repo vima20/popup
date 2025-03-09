@@ -97,4 +97,74 @@
 - Yksikkötestien lisääminen
 - E2E-testien kirjoittaminen
 - Suorituskyvyn optimointi
-- Koodin refaktorointi modulaarisemmaksi 
+- Koodin refaktorointi modulaarisemmaksi
+
+## 2024-03-09
+
+### Korjaukset
+- Korjattu manifest.json:n polut vastaamaan dist-kansion rakennetta
+- Siirretty ikonit icons-kansioon
+- Poistettu ylimääräiset tiedostot dist-kansiosta
+
+### Dokumentaatio
+- Päivitetty README.md vastaamaan nykyistä toteutusta
+- Lisätty yksityiskohtainen arkkitehtuurikuvaus
+- Lisätty frontend-dokumentaatio komponenteista ja tyyleistä
+- Päivitetty todo-lista vastaamaan projektin nykytilaa
+
+### Seuraavat vaiheet
+1. Yksikkötestien kirjoittaminen
+2. Tekstin tyylin muokkausominaisuuksien lisääminen
+3. Firefox-tuen lisääminen
+
+## 9.3.2024
+
+### Korjaukset
+- Korjattu tekstin muuttaminen toimimaan oikein
+- Poistettu Vue.js riippuvuus popup-ikkunasta
+- Korjattu content scriptin latautuminen ja alustus
+- Lisätty debug-lokitus ongelmien selvittämisen helpottamiseksi
+- Parannettu tekstin näkyvyyttä lisäämällä taustaväri ja reunukset
+
+### Muutokset tiedostoittain
+1. `manifest.json`:
+   - Päivitetty versio 1.0.15
+   - Korjattu content scriptin polku
+   - Poistettu module-tyyppi background scriptiltä
+
+2. `background.js`:
+   - Yksinkertaistettu viestin käsittely
+   - Lisätty debug-lokitus
+
+3. `content.js`:
+   - Siirretty oikeaan sijaintiin `src/content/content.js`
+   - Lisätty tarkistus että ajetaan vain kerran
+   - Parannettu tekstin näkyvyyttä
+   - Lisätty kattava debug-lokitus
+
+4. `popup/index.html`:
+   - Poistettu Vue.js riippuvuus
+   - Siirretty JavaScript erilliseen tiedostoon
+   - Korjattu tyylit toimimaan ilman Vue.js:ää
+
+### Seuraavat kehityskohteet
+- Lisää asetuksia tekstin ulkoasulle (koko, väri, sijainti)
+- Mahdollisuus tallentaa useita tekstejä
+- Pikanäppäimen muokkaus
+- Lokalisaatio (suomi/englanti)
+
+### Opitut asiat
+1. Chrome-laajennukset eivät salli:
+   - Ulkoisia skriptejä (CDN)
+   - Inline-skriptejä
+   - ES moduuleja service workerissa
+
+2. Viestintä komponenttien välillä:
+   - Storage on luotettavin tapa välittää tietoa
+   - Message passing vaatii että vastaanottaja on ladattu
+   - Background script voi toimia koordinaattorina
+
+3. Content script:
+   - Pitää ladata oikeaan aikaan (document_end)
+   - Kannattaa varmistaa että ajetaan vain kerran
+   - Debug-lokitus on tärkeää ongelmien selvittämisessä 

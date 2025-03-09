@@ -30,6 +30,7 @@ const app = Vue.createApp({
         this.statusMessage = 'Settings saved successfully!';
         this.statusClass = 'text-green-600';
       } catch (error) {
+        console.error('Failed to save settings:', error);
         this.statusMessage = 'Failed to save settings';
         this.statusClass = 'text-red-600';
       }

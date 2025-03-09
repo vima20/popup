@@ -1,8 +1,4 @@
-import { h, defineComponent } from 'vue'
+import { createApp } from 'vue'
+import App from './App.vue'
 
-export default defineComponent({
-  name: 'Popup',
-  render() {
-    return h('div', 'Hello world!')
-  }
-}) 
+createApp(App).mount('#app') 

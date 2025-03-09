@@ -3,50 +3,29 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
 // Luodaan erilliset konfiguraatiot jokaiselle entry pointille
-export default defineConfig([
-  {
-    plugins: [vue()],
-    build: {
-      outDir: 'dist',
-      lib: {
-        entry: resolve(__dirname, 'src/content.ts'),
-        name: 'content',
-        fileName: 'content',
-        formats: ['iife']
+export default defineConfig({
+  plugins: [
+    vue({
+      script: {
+        defineModel: true,
+        propsDestructure: true
+      }
+    })
+  ],
+  build: {
+    target: 'esnext',
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        popup: resolve(__dirname, 'src/popup/index.html'),
+        content: resolve(__dirname, 'src/content/index.ts'),
+        background: resolve(__dirname, 'src/background.ts')
       },
-      emptyOutDir: false,
-      target: 'es2015',
-      minify: false
-    }
-  },
-  {
-    plugins: [vue()],
-    build: {
-      outDir: 'dist',
-      lib: {
-        entry: resolve(__dirname, 'src/background.ts'),
-        name: 'background',
-        fileName: 'background',
-        formats: ['iife']
-      },
-      emptyOutDir: false,
-      target: 'es2015',
-      minify: false
-    }
-  },
-  {
-    plugins: [vue()],
-    build: {
-      outDir: 'dist',
-      lib: {
-        entry: resolve(__dirname, 'src/popup/index.ts'),
-        name: 'popup',
-        fileName: 'popup',
-        formats: ['iife']
-      },
-      emptyOutDir: false,
-      target: 'es2015',
-      minify: false
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: 'chunks/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
+      }
     }
   }
-]) 
+}) 

@@ -1,19 +1,36 @@
-# YouTube Overlay Extension
+# YouTube Overlay - Kuvaus
 
-Selainlaajennus, joka mahdollistaa mukautetun tekstin näyttämisen YouTube-videoiden päällä. 
+## Idea
+YouTube Overlay on Chrome-laajennus, joka mahdollistaa mukautettavan tekstin näyttämisen YouTube-videoiden päällä. Käyttäjä voi aktivoida tekstin näkyvyyden pikanäppäimellä ja muokata tekstiä laajennuksen popup-ikkunasta.
 
-## Ydintoiminnallisuudet
+## Ydinominaisuudet
+1. **Tekstin näyttäminen**
+   - Teksti näytetään videon päällä keskellä ruutua
+   - Teksti ei häiritse videon kontrolleja tai muita elementtejä
+   - Teksti on aina luettavissa videon päällä (kontrastit huomioitu)
 
-- Mukautetun tekstin asettaminen popup-ikkunan kautta
-- Tekstin näyttäminen/piilottaminen näppäinyhdistelmällä (CTRL + SHIFT + F3)
-- Tekstin tallennus selaimen muistiin
-- Toimii kaikilla YouTube-sivuilla
+2. **Tekstin hallinta**
+   - Teksti voidaan näyttää/piilottaa pikanäppäimellä (CTRL + SHIFT + F3)
+   - Tekstiä voi muokata laajennuksen popup-ikkunasta
+   - Teksti tallennetaan selaimen muistiin
+
+3. **Käyttöliittymä**
+   - Yksinkertainen ja selkeä popup-ikkuna tekstin muokkaamiseen
+   - Visuaalinen palaute tekstin tallennuksesta
+   - Ohjeteksti pikanäppäimen käytöstä
 
 ## Käyttötapaukset
+1. **Muistiinpanot**
+   - Käyttäjä voi näyttää muistiinpanoja katsoessaan opetusvideota
+   - Muistiinpanot pysyvät tallessa selaimen muistissa
 
-1. Käyttäjä haluaa lisätä muistiinpanoja tai kommentteja videon päälle
-2. Käyttäjä haluaa merkitä tärkeitä kohtia videosta
-3. Käyttäjä haluaa lisätä omia käännöksiä tai selityksiä videon sisältöön
+2. **Muistutukset**
+   - Käyttäjä voi asettaa muistutuksia näkyviin videon päälle
+   - Muistutukset voi helposti piilottaa pikanäppäimellä
+
+3. **Merkinnät**
+   - Käyttäjä voi merkitä tärkeitä kohtia videosta
+   - Merkinnät säilyvät selaimen välillä
 
 ## Kuvaus
 Tämä projekti on selainlaajennus, joka näyttää "Hello world!" -tekstin YouTube-videoiden päällä kun käyttäjä painaa "CTRL + SHIFT + F3" -näppäinyhdistelmää. Teksti poistuu näkyvistä kun käyttäjä painaa näppäinyhdistelmää uudestaan. Tekstiä voi muokata laajennuksen popup-ikkunasta.

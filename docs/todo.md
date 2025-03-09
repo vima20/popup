@@ -1,48 +1,62 @@
-# Tehtävälista
+# YouTube Overlay - Todo
 
-## Projektin alustus
-✅ Luoda projekti Vue 3 + TypeScript
-✅ Asentaa Tailwind CSS
-✅ Konfiguroida WebExtensions API
-✅ Asentaa testauskirjastot (Jest, Cypress)
-✅ Konfiguroida TypeScript Vue-tiedostoille
+## Ominaisuudet
 
-## Frontend
-✅ Overlay-komponentin toteutus
-✅ Content scriptin toteutus
-✅ Popup-ikkunan toteutus
-✅ Näppäinyhdistelmän muutos (CTRL + SHIFT + F3)
-⏳ Yksikkötestien kirjoittaminen
-⏳ E2E-testien kirjoittaminen
-❌ Suorituskyvyn optimointi
-❌ Koodin refaktorointi
+### Ydin (✅ Valmiit)
+- ✅ Tekstin näyttäminen YouTube-videon päällä
+- ✅ Tekstin piilottaminen/näyttäminen pikanäppäimellä (CTRL + SHIFT + F3)
+- ✅ Tekstin muokkaaminen popup-ikkunasta
+- ✅ Tekstin tallentaminen selaimen muistiin
 
-## Testaus
-⏳ Kirjoittaa yksikkötestit
-  ⏳ Overlay.spec.ts
-  ⏳ App.spec.ts
-  ⏳ Content Script (index.spec.ts)
-⏳ Kirjoittaa e2e-testit
-  ⏳ Overlay-toiminnallisuus
-  ⏳ Popup-ikkuna
-  ⏳ Näppäinyhdistelmät
-❌ Testata eri selaimissa
-❌ Testata eri YouTube-sivuilla
+### Seuraavat (⏳ Työn alla)
+- ⏳ Tekstin tyylin muokkaaminen (koko, väri, fontti)
+- ⏳ Tekstin sijainnin muokkaaminen
+- ⏳ Useiden tekstien tuki
+
+### Tulevat (❌ Ei aloitettu)
+- ❌ Tumma/vaalea teema popup-ikkunalle
+- ❌ Tekstin animaatiot
+- ❌ Tekstin ajastus (automaattinen näyttäminen/piilottaminen)
+- ❌ Tekstien tallennus ja lataaminen tiedostosta
+- ❌ Kustomoitavat pikanäppäimet
+
+## Tekniset parannukset
+
+### Ydin (✅ Valmiit)
+- ✅ Vue 3 + TypeScript integraatio
+- ✅ Chrome Extension Manifest V3 tuki
+- ✅ Vite build-konfiguraatio
+
+### Seuraavat (⏳ Työn alla)
+- ⏳ Yksikkötestit komponenteille
+- ⏳ E2E-testit Cypressillä
+- ⏳ Koodin dokumentointi (JSDoc)
+
+### Tulevat (❌ Ei aloitettu)
+- ❌ Firefox-tuki
+- ❌ Suorituskyvyn optimointi
+- ❌ Lokalisointi (i18n)
+- ❌ CI/CD pipeline
+- ❌ Koodin laadun tarkistukset (ESLint, Prettier)
 
 ## Dokumentaatio
-✅ Päivittää README.md
-✅ Kirjoittaa asennusohjeet
-✅ Dokumentoida API
-✅ Lisätä käyttöohjeet
 
-## Julkaisu
-❌ Testata Chrome Web Store -julkaisu
-❌ Testata Firefox Add-ons -julkaisu
-❌ Valmistella markkinointimateriaalia
-❌ Julkaista laajennus
+### Ydin (✅ Valmiit)
+- ✅ README.md
+- ✅ Arkkitehtuurikuvaus
+- ✅ Frontend-dokumentaatio
+
+### Seuraavat (⏳ Työn alla)
+- ⏳ API-dokumentaatio
+- ⏳ Kehitysympäristön pystytysohje
+- ⏳ Testausdokumentaatio
+
+### Tulevat (❌ Ei aloitettu)
+- ❌ Käyttöohje
+- ❌ Kontribuutio-ohje
+- ❌ Julkaisuohje
 
 ## Seuraavat prioriteetit
-1. Yksikkötestien korjaus ja validoiminen
-2. E2E-testien kirjoittaminen
-3. Suorituskyvyn mittaus ja optimointi
-4. Koodin refaktorointi modulaarisemmaksi 
+1. Yksikkötestien kirjoittaminen
+2. Tekstin tyylin muokkausominaisuudet
+3. Firefox-tuen lisääminen 

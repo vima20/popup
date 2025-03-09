@@ -1,28 +1,24 @@
 <template>
-  <div class="container bg-white rounded-lg shadow-lg p-4">
-    <h1 class="text-xl font-bold mb-4">YouTube Overlay Extension</h1>
-    <div class="mb-4">
-      <label class="block text-sm font-medium mb-1" for="overlayText">
-        Overlay Text
-      </label>
-      <input
-        id="overlayText"
-        v-model="overlayText"
-        type="text"
-        class="w-full px-3 py-2 border rounded"
-      />
-      <button
-        class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        @click="saveText"
-      >
-        Save
-      </button>
-      <div class="status-indicator mt-2 text-sm" :class="statusClass">
-        {{ statusMessage }}
+  <div class="popup">
+    <h1>YouTube Overlay</h1>
+    <form @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <label for="overlay-text">Overlay Text:</label>
+        <input
+          id="overlay-text"
+          v-model="text"
+          type="text"
+          placeholder="Enter text to display"
+          :disabled="isLoading"
+        >
       </div>
-    </div>
-    <div class="text-sm text-gray-600">
-      Press CTRL + SHIFT + O to toggle overlay
+      <button type="submit" :disabled="isLoading">
+        {{ isLoading ? 'Saving...' : 'Save' }}
+      </button>
+    </form>
+    <p class="hint">Press CTRL + SHIFT + F3 to toggle overlay</p>
+    <div v-if="statusMessage" :class="['status', statusClass]">
+      {{ statusMessage }}
     </div>
   </div>
 </template>
@@ -30,25 +26,136 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const overlayText = ref('Hello world!')
-const statusMessage = ref('')
-const statusClass = ref('')
+// Chrome API types
+declare global {
+  interface Window {
+    chrome: typeof chrome;
+  }
+}
+
+interface StatusMessage {
+  text: string;
+  type: 'success' | 'error' | 'info';
+}
+
+const text = ref<string>('Hello world!')
+const statusMessage = ref<string>('')
+const statusClass = ref<string>('')
+const isLoading = ref<boolean>(false)
 
 onMounted(async () => {
-  const result = await chrome.storage.sync.get('overlayText')
-  if (result.overlayText) {
-    overlayText.value = result.overlayText
+  // Load saved text
+  try {
+    const result = await chrome.storage.sync.get('overlayText')
+    if (result.overlayText) {
+      text.value = result.overlayText
+    }
+  } catch (error) {
+    console.error('Failed to load text:', error)
   }
 })
 
-const saveText = async () => {
+function updateStatus(status: StatusMessage) {
+  statusMessage.value = status.text
+  statusClass.value = status.type === 'success' ? 'text-green-600' : 'text-red-600'
+}
+
+async function handleSubmit() {
+  if (isLoading.value) return
+  
   try {
-    await chrome.storage.sync.set({ overlayText: overlayText.value })
-    statusMessage.value = 'Settings saved successfully!'
-    statusClass.value = 'text-green-600'
+    isLoading.value = true
+
+    // Send message to background script
+    await new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(
+        { type: 'updateOverlayText', text: text.value },
+        response => {
+          if (response && response.success) {
+            resolve(response)
+          } else {
+            reject(new Error(response?.error || 'Failed to save'))
+          }
+        }
+      )
+    })
+
+    updateStatus({
+      text: 'Settings saved successfully!',
+      type: 'success'
+    })
   } catch (error) {
-    statusMessage.value = 'Failed to save settings'
-    statusClass.value = 'text-red-600'
+    console.error('Failed to save settings:', error)
+    updateStatus({
+      text: 'Failed to save settings',
+      type: 'error'
+    })
+  } finally {
+    isLoading.value = false
   }
 }
-</script> 
+</script>
+
+<style scoped>
+.popup {
+  width: 300px;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.hint {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #666;
+  text-align: center;
+}
+
+.status {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.text-green-600 {
+  color: #059669;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+</style> 

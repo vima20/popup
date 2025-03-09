@@ -1,10 +1,9 @@
 import { createApp, ref } from 'vue'
 import Overlay from '../components/Overlay.vue'
-import '../style.css'
 
 console.log('Content script loaded')
 
-function initializeApp() {
+export function initializeApp() {
   try {
     // Check if container already exists
     let container = document.getElementById('youtube-overlay-container')
