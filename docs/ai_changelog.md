@@ -1,170 +1,168 @@
-# AI Changelog
+# YouTube Overlay - Muutoshistoria
 
-## [2024-03-20]
-- Korjattu YouTube Overlay -laajennuksen toiminnallisuus
-  - Lisätty oikeat oikeudet manifest.json-tiedostoon
-  - Korjattu viestintä popup-ikkunan ja content scriptin välillä
-  - Korjattu Chrome Storage API:n käyttö
-- Päivitetty dokumentaatio vastaamaan toteutettua ratkaisua
-  - Lisätty kuvaus sovelluksesta (description.md)
-  - Päivitetty tekninen arkkitehtuuri (architecture.md)
-  - Lisätty käyttöliittymän dokumentaatio (frontend.md)
+## Versio 5.0 (12.3.2025)
 
-## 2024-03-19
-### Lisätty
-- Luotu perus dokumentaatiokansio
-- Lisätty seuraavat dokumentaatiotiedostot:
-  - readme.md: Projektin perustiedot ja asennusohjeet
-  - description.md: Sovelluksen kuvaus ja käyttötapaukset
-  - architecture.md: Tekninen arkkitehtuuri ja komponentit
-  - frontend.md: Käyttöliittymän kuvaus
-  - todo.md: Tehtävälista ja prioriteetit
-  - ai_changelog.md: Muutosloki
-  - learnings.md: Oppimiskokemukset ja ratkaisut
+### Merkittävät arkkitehtuurimuutokset ja parannukset
 
-### Muutettu
-- Ei muutoksia
+#### Background.js-tiedoston uudistukset (V5.0)
+- Lisätty dynaaminen content script injektointi Chrome Scripting API:n avulla
+- Parannettu välilehtien tilan seurantaa reaaliaikaisella youtubeTabsState-objektilla
+- Lisätty injectContentScript-funktio, joka huolehtii sekä skriptin että tyylien injektoinnista
+- Toteutettu kattava ja luotettava viestijärjestelmä popupin ja content scriptin välille
+- Parannettu virheenkäsittelyä injektoinnissa ja viestinnässä
+- Lisätty automaattinen content scriptin injektointi, kun YouTube-välilehti havaitaan
 
-### Poistettu
-- Ei poistoja
+#### Content.js-tiedoston uudistukset (V5.0)
+- Uudistettu tiedoston rakenne selkeämpään moduulimaiseen muotoon
+- Toteutettu parempi overlay-elementin luonti ja hallinta
+- Lisätty youtubeOverlayActive-merkki globaaliin scopeen
+- Toteutettu API tilan kyselyä varten (getStatus)
+- Selkeämmät ja kattavammat virhelokitukset
+- Käytetty Object.assign-metodia tyylien asettamiseen
+- Lisätty contentScriptReady-ilmoitus background scriptille
 
-## 2024-03-19 (Koodin päivitys)
-### Lisätty
-- Luotu perusprojektin rakenne
-- Lisätty TypeScript-määritykset Vue-tiedostoille
-- Lisätty puuttuvat riippuvuudet package.json tiedostoon
-- Lisätty preview-skripti package.json tiedostoon
+#### Popup.js-tiedoston uudistukset (V5.0)
+- Toteutettu updateYouTubeTab-funktio, joka varmistaa content scriptin injektion ennen viestin lähetystä
+- Parannettu kaikkien YouTube-välilehtien päivityslogiikkaa
+- Lisätty luotettavampi virheenkäsittely ja tarkempi raportointi
+- Päivitetty käyttäjäpalaute selkeämmäksi ja informatiivisemmaksi
+- Selkeämmät lokiviestit helpompaan vianetsintään
 
-### Muutettu
-- Korjattu Overlay.vue komponentin importit
-- Päivitetty manifest.json tiedoston polut ja määritykset
-- Lisätty CSS-tiedoston määritys manifest.json tiedostoon
+#### Tiedostorakenteen uudistus (V5.0)
+- Selkeä jako julkaisu- ja lähdekoodikansioiden välillä (dist/ ja src/)
+- Manifest.json siirretty dist-kansioon
+- Järkevämpi kuvakkeiden organisointi icons/-hakemistoon
+- Päivitetty dokumentaatio vastaamaan uutta rakennetta
 
-### Poistettu
-- Ei poistoja
+### Merkittävimmät korjaukset ja parannukset
 
-## 2024-03-19 (Testien päivitys)
-### Lisätty
-- Lisätty kattavat yksikkötestit:
-  - Overlay.spec.ts: Komponentin renderöinti, props, näkyvyys, tyylit ja näppäinyhdistelmän käsittely
-  - App.spec.ts: Popup-komponentin renderöinti, otsikko, tyylit ja versionumero
-  - Content Script (index.spec.ts): DOM-manipulaatio ja näppäinyhdistelmän käsittely
-- Lisätty mockit event listenereille ja DOM-elementeille
-- Lisätty negatiiviset testit näppäinyhdistelmille
+#### Korjaus 1: Content Script injektointi (V5.0)
+- **Ongelma**: Content script ei aina latautunut luotettavasti kaikissa tilanteissa
+- **Ratkaisu**: Dynaaminen injektointi Chrome Scripting API:n avulla, joka varmistaa että content script on aina käytettävissä
 
-### Muutettu
-- Päivitetty Overlay-komponentin toteutus käyttämään isVisible propia ref:n sijaan
-- Päivitetty testit vastaamaan uutta toteutusta
-- Poistettu turha toggle-napin testi App.spec.ts tiedostosta
+#### Korjaus 2: Monivaiheinen viestintä (V5.0)
+- **Ongelma**: Viestin lähetys content scriptille saattoi epäonnistua, jos script ei ollut vielä valmis
+- **Ratkaisu**: Popup tarkistaa ensin content scriptin tilan, varmistaa injektion ja vasta sitten lähettää varsinaisen viestin
 
-### Poistettu
-- Ei poistoja
+#### Korjaus 3: Välilehtien hallinta (V5.0)
+- **Ongelma**: Välilehtien tilan seuranta ei ollut riittävän kattavaa
+- **Ratkaisu**: Parannettu välilehtien tilan seuranta ja automaattinen content script injektointi
 
-## 2024-03-19 (E2E-testien lisäys)
-### Lisätty
-- Lisätty Cypress-konfiguraatio selainlaajennuksen testaamista varten
-- Lisätty custom Cypress-komennot:
-  - loadExtension: Laajennuksen lataus ja mockit
-  - pressKeyCombination: Näppäinyhdistelmien simulointi
-  - checkOverlay: Overlay-komponentin tarkistus
-- Lisätty E2E-testit:
-  - overlay.cy.ts: Overlay-toiminnallisuuden testit
-  - popup.cy.ts: Popup-ikkunan testit
-- Lisätty testit näppäinyhdistelmille ja tyyleille
+#### Parannus 1: Content Script API (V5.0)
+- Lisätty uusi API content scriptin tilan kyselyyn, overlay-elementin hallintaan ja tekstin päivittämiseen
+- API tarjoaa selkeät vastaukset kaikille toiminnoille, mikä helpottaa toiminnallisuuden testaamista ja laajentamista
 
-### Muutettu
-- Päivitetty todo.md vastaamaan E2E-testien tilaa
-- Päivitetty Cypress-konfiguraatio tukemaan selainlaajennuksen testaamista
+#### Parannus 2: Automaattinen tekstin piilotus (V5.0)
+- Overlay-teksti katoaa automaattisesti 3 sekunnin kuluttua näyttämisestä, mikä parantaa käyttökokemusta
 
-### Poistettu
-- Ei poistoja
+#### Parannus 3: Virhelokit ja diagnostiikka (V5.0)
+- Kattavampi lokitus ja virheiden raportointi, jotka helpottavat ongelmien diagnosointia
 
-## [2024-03-XX] YouTube Overlay -laajennuksen korjaukset
+## Versio 4.0 (12.3.2025)
 
-### Korjattu
-- Overlay-komponentin reaktiivisuus ja tilan hallinta
-- Content scriptin resurssien hallinta ja siivous
-- TypeScript-tyyppien määrittelyt
-- Event handlerien käsittely ja siivous
+### Merkittävät arkkitehtuurimuutokset ja korjaukset
 
-### Lisätty
-- Cleanup-funktio resurssien vapauttamiseen
-- Unload event handleri
-- Debug-loggaus
-- Event.preventDefault() F3-näppäimelle
+#### Content.js-tiedoston uudistukset (V4.0)
+- Siirretty viestinkuuntelija heti skriptin alkuun, mikä varmistaa että viestit voidaan vastaanottaa ennen muita toimintoja
+- Lisätty content scriptin latautumisilmoitus background scriptille
+- Parannettu DOM-valmiuden seurantaa monivaiheisilla tarkistuksilla
+- Lisätty kattavampi virheenkäsittely jokaiseen funktioon
+- Parannettu DOM-elementtien luomislogiikkaa ja virheiden hallintaa
 
-### Tekninen velka
-- Yksikkötestien lisääminen
-- E2E-testien kirjoittaminen
-- Suorituskyvyn optimointi
-- Koodin refaktorointi modulaarisemmaksi
+#### Background.js-tiedoston uudistukset (V4.0)
+- Lisätty välilehtien tilan seuranta (youtubeTabsState) YouTube-välilehtien hallintaan
+- Lisätty välilehtien tilan päivitysten kuuntelu (onUpdated)
+- Lisätty automaattinen tekstin päivitys, kun välilehti valmistuu
+- Lisätty content scriptin latautumisilmoitusten käsittely
+- Parannettu virheidenkäsittelyä ja tietojen välitystä
 
-## 2024-03-09
+#### Popup.js-tiedoston uudistukset (V4.0)
+- Lisätty monivaiheinen päivityslogiikka, joka kokeilee useita tapoja päivittää teksti
+- Parannettu virheenhallintaa kattavammilla try-catch -rakenteilla
+- Lisätty viiveitä viestinvälitykseen luotettavuuden parantamiseksi
+- Lisätty selkeämmät virheilmoitukset käyttäjälle
 
-### Korjaukset
-- Korjattu manifest.json:n polut vastaamaan dist-kansion rakennetta
-- Siirretty ikonit icons-kansioon
-- Poistettu ylimääräiset tiedostot dist-kansiosta
+### Merkittävimmät korjaukset
 
-### Dokumentaatio
-- Päivitetty README.md vastaamaan nykyistä toteutusta
-- Lisätty yksityiskohtainen arkkitehtuurikuvaus
-- Lisätty frontend-dokumentaatio komponenteista ja tyyleistä
-- Päivitetty todo-lista vastaamaan projektin nykytilaa
+#### Korjaus 1: "Receiving end does not exist" -virheen korjaus
+- **Ongelma**: Popup ei pystynyt kommunikoimaan content scriptin kanssa, koska viestinkuuntelija rekisteröityi liian myöhään
+- **Ratkaisu**: Viestinkuuntelija siirretty content scriptin ensimmäiseksi toiminnoksi, mikä mahdollistaa viestien vastaanottamisen välittömästi
 
-### Seuraavat vaiheet
-1. Yksikkötestien kirjoittaminen
-2. Tekstin tyylin muokkausominaisuuksien lisääminen
-3. Firefox-tuen lisääminen
+#### Korjaus 2: Content scriptin ja background scriptin kommunikaation parantaminen
+- **Ongelma**: Background script ei tiennyt milloin content script on todella latautunut
+- **Ratkaisu**: Lisätty content scriptin lähettämä ilmoitus background scriptille, kun se on latautunut ja valmis vastaanottamaan viestejä
 
-## 9.3.2024
+#### Korjaus 3: Monivaiheinen päivitysmekanismi
+- **Ongelma**: Tekstin päivitys saattoi epäonnistua, jos yksi viestintäkanava ei toiminut
+- **Ratkaisu**: Implementoitu rinnakkaisia päivityskanavia, jotka varmistavat että tieto päivittyy vaikka yksi kanava epäonnistuisi
 
-### Korjaukset
-- Korjattu tekstin muuttaminen toimimaan oikein
-- Poistettu Vue.js riippuvuus popup-ikkunasta
-- Korjattu content scriptin latautuminen ja alustus
-- Lisätty debug-lokitus ongelmien selvittämisen helpottamiseksi
-- Parannettu tekstin näkyvyyttä lisäämällä taustaväri ja reunukset
+## Versio 3.0 (11.3.2025)
 
-### Muutokset tiedostoittain
-1. `manifest.json`:
-   - Päivitetty versio 1.0.15
-   - Korjattu content scriptin polku
-   - Poistettu module-tyyppi background scriptiltä
+### Korjaukset ja parannukset
 
-2. `background.js`:
-   - Yksinkertaistettu viestin käsittely
-   - Lisätty debug-lokitus
+#### Popup.js-tiedoston parannukset
+- Yksinkertaistettu koodi ja parannettu rakennetta
+- Lisätty selkeämmät virheilmoitukset ja logiikka
+- Parannettu käyttöliittymän palautetta (napin latausanimaatio)
+- Korjattu debug-napin toiminnallisuus
 
-3. `content.js`:
-   - Siirretty oikeaan sijaintiin `src/content/content.js`
-   - Lisätty tarkistus että ajetaan vain kerran
-   - Parannettu tekstin näkyvyyttä
-   - Lisätty kattava debug-lokitus
+#### Content.js-tiedoston parannukset
+- Lisätty tarkistuksia DOM-elementtien olemassaolosta
+- Parannettu virheidenkäsittelyä
+- Varmistettu että overlay-elementti luodaan heti kun mahdollista
+- Lisätty tarkistuksia elementtien säilymisestä DOM:issa
 
-4. `popup/index.html`:
-   - Poistettu Vue.js riippuvuus
-   - Siirretty JavaScript erilliseen tiedostoon
-   - Korjattu tyylit toimimaan ilman Vue.js:ää
+#### Background.js-tiedoston parannukset
+- Yksinkertaistettu koodi
+- Parannettu virheidenkäsittelyä
+- Selkeämpi logiikka callback-funktioissa
 
-### Seuraavat kehityskohteet
-- Lisää asetuksia tekstin ulkoasulle (koko, väri, sijainti)
-- Mahdollisuus tallentaa useita tekstejä
-- Pikanäppäimen muokkaus
-- Lokalisaatio (suomi/englanti)
+#### Manifest.json-tiedoston parannukset
+- Lisätty `run_at: "document_start"` content scriptille, jotta se ladataan mahdollisimman aikaisin
 
-### Opitut asiat
-1. Chrome-laajennukset eivät salli:
-   - Ulkoisia skriptejä (CDN)
-   - Inline-skriptejä
-   - ES moduuleja service workerissa
+#### Content.css-tiedoston korjaukset
+- Päivitetty CSS-valitsin vastaamaan JavaScript-koodin ID:tä
 
-2. Viestintä komponenttien välillä:
-   - Storage on luotettavin tapa välittää tietoa
-   - Message passing vaatii että vastaanottaja on ladattu
-   - Background script voi toimia koordinaattorina
+#### README.md-tiedoston päivitykset
+- Ajantasaistettu ohjeet ja tiedostorakenne
+- Lisätty vianetsintäohjeet
+- Päivitetty teknisen toteutuksen kuvaus
 
-3. Content script:
-   - Pitää ladata oikeaan aikaan (document_end)
-   - Kannattaa varmistaa että ajetaan vain kerran
-   - Debug-lokitus on tärkeää ongelmien selvittämisessä 
+### Merkittävimmät korjaukset
+
+#### Korjaus 1: Overlay-tekstin päivittyminen ilman sivun uudelleenlatausta
+- **Ongelma**: Overlay-tekstiä ei pystynyt päivittämään ilman sivun uudelleenlatausta
+- **Ratkaisu**: Lisätty kolme eri viestinvälitysmekanismia:
+  1. Chrome storage listener
+  2. Suorat viestit content scriptiin
+  3. Background scriptin kautta kaikille välilehdille lähetettävät viestit
+
+#### Korjaus 2: Virheiden käsittely popup-ikkunassa
+- **Ongelma**: Virheistä ei tullut selkeitä ilmoituksia käyttäjälle
+- **Ratkaisu**: Parannettu virheidenkäsittelyä ja lisätty selkeät tilaviestit
+
+#### Korjaus 3: Overlay-elementin luominen ja säilyminen
+- **Ongelma**: Overlay-elementti ei aina luotu oikein tai se saattoi kadota DOM:ista
+- **Ratkaisu**: Lisätty parempi DOM-tarkistus, säännöllinen elementin olemassaolon varmistus
+
+## Versio 2.0 (10.3.2025)
+
+### Korjaukset ja parannukset
+- Lisätty automaattinen päivitys kaikille YouTube-välilehdille
+- Parannettu virheidenkäsittelyä
+- Lisätty debug-toiminnallisuus testaamista varten
+
+## Versio 1.0 (9.3.2025)
+
+### Ensimmäinen toimiva versio
+
+- Luotu perustoiminnallisuus
+- Implementoitu popup-ikkuna
+- Implementoitu content script
+- Lisätty näppäinyhdistelmän (CTRL+SHIFT+F3) tuki
+
+### Tunnetut ongelmat
+
+- Overlay-tekstiä ei voi päivittää ilman sivun uudelleenlatausta
+- Viestinvälitys content scriptin ja popup-ikkunan välillä on epäluotettava
+- Virheidenkäsittely puutteellista 

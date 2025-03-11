@@ -1,149 +1,178 @@
-# Oppimiskokemukset ja ratkaisut
+# YouTube Overlay - Opitut asiat ja ratkaisut
 
-## Teknisiä oppimiskokemuksia
-- WebExtensions API vaatii erityisen huomion turvallisuusasetuksiin
-- Vue 3 + TypeScript yhdistelmä tarjoaa hyvän tyyppitarkistuksen
-- Tailwind CSS on tehokas tyylittelyyn, mutta vaatii huomiota bundle-koon kanssa
-- Chrome Extension Manifest V3 vaatii erityisen huomion moduulityyppien kanssa
-- Vue-komponenttien testaus vaatii huomiota event listenerien mockaamiseen ja siivomiseen
-- Selainlaajennusten E2E-testaus vaatii erityisen huomion mockien ja custom-komentojen käyttöön
+## Chrome Extension -kehitys
 
-## Virheiden ratkaisut
-### WebExtensions API
-- Content script -injektio vaatii manifest.json määritykset
-- Taustaskriptien ja content scriptien välinen viestintä vaatii chrome.runtime.sendMessage käytön
-- Service worker vaatii "type": "module" määrityksen manifest.json tiedostossa
+### Manifest V3 yhteensopivuus
 
-### Vue 3
-- Komponenttien elinkaaren hallinta on kriittistä overlay-toiminnallisuudelle
-- TypeScript-tyypit pitää määritellä tarkasti WebExtensions API:lle
-- Vue-tiedostojen TypeScript-tuki vaatii env.d.ts määritykset
-- Props vs ref: Props on parempi valinta kun arvoa halutaan hallita ulkopuolelta
+Chrome Extension API on siirtynyt Manifest V3 -versioon, mikä tuo mukanaan muutoksia aiempiin versioihin nähden:
 
-### TypeScript
-- Vue-tiedostojen tyypitys vaatii erillisen määritystiedoston
-- Chrome Extension API:n tyypit vaativat @types/chrome paketin
+- Background scriptit ovat nyt service workereita
+- Content scriptit pysyvät pitkälti samanlaisia
+- Oikeuksien määrittely on muuttunut (esim. host_permissions erillään permissions-kentästä)
 
-### Testaus
-- Event listenerien mockaaminen vaatii vi.spyOn käytön
-- Mockit pitää siivota afterEach-hookissa
-- Negatiiviset testit ovat tärkeitä näppäinyhdistelmien testauksessa
-- DOM-elementtien mockaaminen vaatii huomiota globaaleihin objekteihin
-- E2E-testauksessa custom-komentoja kannattaa käyttää yleisten toimintojen toistamiseen
-- Selainlaajennusten testauksessa chrome API:n mockaaminen on välttämätöntä
-- Näppäinyhdistelmien testaus vaatii erityisen huomion eventien simulointiin
+```json
+{
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["*://*.youtube.com/*"]
+}
+```
 
-## Parhaat käytännöt
-1. **Koodin organisointi**
-   - Selkeä hakemistorakenne
-   - Modulaarinen komponenttirakenne
-   - Yksikkötestit komponenteille
+### Content Scriptin ajoitus
 
-2. **Turvallisuus**
-   - CSP (Content Security Policy) määritykset
-   - Tarkka oikeuksien hallinta manifest.json:ssa
-   - Input-validointi
+Content scriptin latausajoitusta voi hallita `run_at`-parametrilla:
 
-3. **Suorituskyky**
-   - Lazy loading komponenteille
-   - Optimointi bundle-koon suhteen
-   - Välimuistin käyttö
+```json
+"content_scripts": [{
+  "matches": ["*://*.youtube.com/*"],
+  "js": ["content.js"],
+  "css": ["content.css"],
+  "run_at": "document_start"
+}]
+```
 
-4. **TypeScript**
-   - Tarkat tyypit kaikille komponenteille
-   - Moduulien tyypitykset
-   - API-tyypit
+- `document_start`: Suoritetaan heti kun dokumentti alkaa latautua
+- `document_end`: Suoritetaan kun DOM on latautunut, mutta ennen kuin muut resurssit (kuvat jne.) ovat valmiita
+- `document_idle` (oletus): Suoritetaan kun sivu on täysin latautunut
 
-5. **Testaus**
-   - Kattavat yksikkötestit
-   - Mockien oikea käyttö
-   - Negatiivisten testien kirjoittaminen
-   - Testien siivous
-   - Custom-komentojen käyttö yleisten toimintojen toistamiseen
-   - Selainkohtaiset testit eri ympäristöissä
+Käytämme `document_start` -asetusta varmistaaksemme, että content script on käytettävissä mahdollisimman aikaisin.
 
-# Opitut asiat ja parhaat käytännöt
+## Viestinvälitys Chrome-laajennuksessa
 
-## Chrome-laajennukset
+### Viestien lähettäminen content scriptiltä popup-ikkunalle
 
-### Tietoturvarajoitukset
-1. Content Security Policy (CSP) estää:
-   - Ulkoisten skriptien lataamisen (esim. CDN)
-   - Inline-skriptien suorittamisen
-   - ES moduulien käytön service workerissa
+Content script ei voi suoraan lähettää viestejä popup-ikkunalle. Sen sijaan viestit pitää reitittää background scriptin kautta tai käyttää chrome.storage-rajapintaa.
 
-### Viestintä komponenttien välillä
-1. Chrome Storage API
-   - Luotettavin tapa välittää tietoa komponenttien välillä
-   - Automaattinen synkronointi kaikkien komponenttien välillä
-   - Tukee sekä synkronista että asynkronista tallennusta
+### Virheidenkäsittely chrome.runtime.lastError -virheissä
 
-2. Message Passing
-   - Vaatii että vastaanottaja on ladattu ja aktiivinen
-   - Background script voi toimia keskitettynä koordinaattorina
-   - Asynkronisissa viesteissä pitää palauttaa true ja käyttää sendResponse
+```javascript
+chrome.tabs.sendMessage(tabId, message, function(response) {
+  if (chrome.runtime.lastError) {
+    console.error("Virhe:", chrome.runtime.lastError.message);
+    return;
+  }
+  // Käsittele vastaus
+});
+```
 
-### Content Script
-1. Latausjärjestys
-   - `document_end` on yleensä paras ajankohta
-   - Varmista että DOM on valmis ennen manipulointia
-   - Käytä `readyState` tarkistusta
+Chrome API:n virheet tallentuvat `chrome.runtime.lastError`-ominaisuuteen, joka on saatavilla vain callback-funktiossa. Jos tätä ei tarkisteta, virheet jäävät käsittelemättä.
 
-2. Suorituskerrat
-   - Varmista että content script ajetaan vain kerran
-   - Käytä globaalia muuttujaa tarkistukseen
-   - Puhdista vanhat resurssit ennen uudelleenalustusta
+### Luotettava viestinvälitys usean mekanismin avulla
 
-3. Debug
-   - Lisää kattava lokitus ongelmien selvittämiseen
-   - Käytä Chrome DevTools:n Console-välilehteä
-   - Lokita kaikki tärkeät tapahtumat ja tilamuutokset
+Yksi tehokkaimmista oppimistamme on kolmen eri viestinvälitysmekanismin käyttö:
 
-### Popup-ikkuna
-1. HTML/CSS/JavaScript
-   - Pidä yksinkertaisena
-   - Vältä raskaita kirjastoja
-   - Käytä perinteistä DOM-manipulointia
+1. **Chrome Storage**: Toimii aina, mutta ei ole reaaliaikainen
+   ```javascript
+   chrome.storage.sync.set({overlayText: text}, function() {
+     console.log('Tallennettu');
+   });
+   
+   // Kuuntelija toisessa scriptissä
+   chrome.storage.onChanged.addListener(function(changes, namespace) {
+     if (namespace === 'sync' && changes.overlayText) {
+       updateOverlayText(changes.overlayText.newValue);
+     }
+   });
+   ```
 
-2. Tyylit
-   - Määrittele tyylit suoraan HTML-tiedostossa
-   - Käytä selkeitä luokkanimiä
-   - Huomioi responsiivisuus
+2. **Suorat viestit**: Nopea, mutta toimii vain jos content script on aktiivinen
+   ```javascript
+   chrome.tabs.sendMessage(tabId, {action: 'updateText', text: text});
+   ```
 
-### Virheenkäsittely
-1. Yleiset virheet
-   - "Could not establish connection" = vastaanottaja ei ole ladattu
-   - CSP-virheet = tietoturvarajoitukset estävät toiminnon
-   - Storage-virheet = tarkista oikeudet manifestissa
+3. **Background scriptin kautta**: Kokoaa kaikki välilehdet
+   ```javascript
+   chrome.runtime.sendMessage({type: 'updateAllTabs', text: text});
+   ```
 
-2. Ratkaisut
-   - Käytä storage:a viestien sijaan
-   - Siirrä skriptit erillisiin tiedostoihin
-   - Lisää debug-lokitus ongelmien selvittämiseen
+## DOM-manipulaatio ja overlay-elementti
 
-## Chrome Extension Development
+### Overlay-elementin luominen ja ylläpito
 
-### Oikeudet ja manifest.json
-- Varmista oikeat `permissions` ja `host_permissions` manifest.json-tiedostossa
-- Käytä manifest v3:a uusissa laajennuksissa
-- Määrittele content scriptit tarkasti vain tarvittaville sivuille
+Elementti kannattaa luoda heti ja tarkistaa säännöllisesti, onko se vielä DOM:issa:
 
-### Viestintä komponenttien välillä
-- Käytä Chrome Runtime Messaging API:a viestintään
-- Varmista async/await-käyttö viestinnässä
-- Käsittele virhetilanteet ja vastaa viesteihin
+```javascript
+// Luo overlay heti kun DOM on valmis
+function createOverlay() {
+  // Jos overlay on jo olemassa, älä tee mitään
+  if (overlayElement && document.body.contains(overlayElement)) {
+    return overlayElement;
+  }
+  
+  // Luo uusi overlay
+  overlayElement = document.createElement('div');
+  // ...
+  
+  return overlayElement;
+}
 
-### Chrome Storage API
-- Käytä `chrome.storage.sync` datan tallentamiseen
-- Huomioi asynkronisuus storage-operaatioissa
-- Varmista oikeudet storage-käyttöön manifestissa
+// Tarkista säännöllisesti onko overlay vielä DOM:issa
+setInterval(function() {
+  if (overlayInitialized && (!overlayElement || !document.body.contains(overlayElement))) {
+    createOverlay();
+  }
+}, 2000);
+```
 
-### Vue.js Chrome-laajennuksessa
-- Käytä Vue 3:n Composition API:a
-- Huomioi Vue-sovelluksen alustus popup-ikkunassa
-- Varmista tyylikirjastojen (Tailwind) toimivuus
+### Tapahtumien käsittely
 
-### Virheenkorjaus
-- Käytä Chrome DevTools:ia laajennuksen debuggaukseen
-- Tarkista console.log-viestit background ja content scripteistä
-- Testaa eri YouTube-sivuilla toimivuus 
+Näppäimistötapahtumien kuuntelu ja overlay-elementin näyttäminen/piilottaminen:
+
+```javascript
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && e.code === 'F3') {
+    toggleOverlay();
+  }
+});
+```
+
+## Yleisiä virhetilanteita ja ratkaisuja
+
+### Content Script ei vastaa tai löydy
+
+**Ongelma**: Viestien lähettäminen content scriptille epäonnistuu virheellä "Could not establish connection. Receiving end does not exist."
+
+**Ratkaisu**:
+1. Varmista että content script on ladattu (esim. `run_at: "document_start"`)
+2. Käsittele `chrome.runtime.lastError` asianmukaisesti
+3. Käytä vaihtoehtoisia viestinvälitysmekanismeja (kuten storage)
+
+### Chrome Storage -muutosten seuranta 
+
+**Ongelma**: Storage-muutokset eivät aina päivity kaikille komponenteille.
+
+**Ratkaisu**: Kuuntele muutoksia eksplisiittisesti ja varmista että kuuntelija on lisätty:
+
+```javascript
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+  if (namespace === 'sync' && changes.overlayText) {
+    updateOverlayText(changes.overlayText.newValue);
+  }
+});
+```
+
+### Callback-funktioiden käsittely
+
+**Ongelma**: Chrome API:t ovat asynkronisia ja vain callbackeissa voi käsitellä vastauksia.
+
+**Ratkaisu**: Käytä johdonmukaista callback-rakennetta:
+
+```javascript
+// Huono tapa (callback voi puuttua)
+function updateAllTabs(text, callback) {
+  // Jos callback puuttuu, tulee virhe
+  callback(result);
+}
+
+// Hyvä tapa
+function updateAllTabs(text, callback) {
+  if (!callback || typeof callback !== 'function') {
+    callback = function() {};
+  }
+  // Nyt callback-kutsu on aina turvallinen
+  callback(result);
+}
+``` 

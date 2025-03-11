@@ -1,26 +1,8 @@
 {
   "name": "youtube-overlay",
   "version": "1.0.0",
-  "description": "Chrome extension to show text overlay on YouTube videos",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "test": "vitest",
-    "test:e2e": "cypress run",
-    "test:e2e:dev": "cypress open"
-  },
-  "dependencies": {
-    "vue": "^3.4.15"
-  },
-  "devDependencies": {
-    "@types/chrome": "^0.0.260",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "@vue/test-utils": "^2.4.4",
-    "cypress": "^13.6.3",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.12",
-    "vitest": "^1.2.2",
-    "vue-tsc": "^2.2.8"
-  }
-}
+  "description": "Näyttää tekstiä YouTube-videoiden päällä",
+  "private": true,
+  "author": "Your Name",
+  "license": "MIT"
+} 

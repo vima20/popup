@@ -1,62 +1,89 @@
-# YouTube Overlay - Todo
+# YouTube Overlay - Tehtävälista
 
 ## Ominaisuudet
 
-### Ydin (✅ Valmiit)
-- ✅ Tekstin näyttäminen YouTube-videon päällä
-- ✅ Tekstin piilottaminen/näyttäminen pikanäppäimellä (CTRL + SHIFT + F3)
-- ✅ Tekstin muokkaaminen popup-ikkunasta
-- ✅ Tekstin tallentaminen selaimen muistiin
+### Ydinominaisuudet
 
-### Seuraavat (⏳ Työn alla)
-- ⏳ Tekstin tyylin muokkaaminen (koko, väri, fontti)
-- ⏳ Tekstin sijainnin muokkaaminen
-- ⏳ Useiden tekstien tuki
+- [✅] Overlay-elementin luominen ja näyttäminen YouTube-videoissa
+- [✅] Näppäinyhdistelmä (CTRL+SHIFT+F3) elementin näyttämiseen
+- [✅] Käyttäjän määrittelemän tekstin syöttäminen popup-ikkunassa
+- [✅] Tekstin tallentaminen Chrome storage -rajapinnan avulla
+- [✅] Automaattinen tekstin päivitys kaikille avoimille YouTube-välilehdille
+- [✅] Virheidenkäsittely ja käyttäjäpalaute
+- [✅] Popup-ikkunan käyttöliittymä
+- [✅] Automaattinen overlay-piilotus 3 sekunnin kuluttua
 
-### Tulevat (❌ Ei aloitettu)
-- ❌ Tumma/vaalea teema popup-ikkunalle
-- ❌ Tekstin animaatiot
-- ❌ Tekstin ajastus (automaattinen näyttäminen/piilottaminen)
-- ❌ Tekstien tallennus ja lataaminen tiedostosta
-- ❌ Kustomoitavat pikanäppäimet
+### Parannukset ja kehitysideat
 
-## Tekniset parannukset
+- [⏳] Useamman tekstin tallentaminen ja valitseminen
+- [❌] Tekstin ulkoasun mukauttaminen (fontti, koko, väri)
+- [❌] Tekstin sijainnin säätäminen videolla
+- [❌] Animaatioiden ja tehosteiden lisääminen
+- [❌] Ajastettu näyttäminen/piilottaminen
+- [❌] Tekstin tallentaminen tietyille videoille (per-video-setting)
+- [❌] Tuki kuvien ja emojien lisäämiselle
 
-### Ydin (✅ Valmiit)
-- ✅ Vue 3 + TypeScript integraatio
-- ✅ Chrome Extension Manifest V3 tuki
-- ✅ Vite build-konfiguraatio
+## Tekninen kehitys
 
-### Seuraavat (⏳ Työn alla)
-- ⏳ Yksikkötestit komponenteille
-- ⏳ E2E-testit Cypressillä
-- ⏳ Koodin dokumentointi (JSDoc)
+- [✅] Manifest V3 yhteensopivuus
+- [✅] Content scriptin lataaminen document_start-vaiheessa
+- [✅] Luotettava viestinvälitys komponenttien välillä
+- [✅] Storage-muutosten kuuntelu
+- [✅] Viestikuuntelijan optimoitu sijoitus content scriptissä
+- [✅] Content scriptin latautumisilmoitukset background scriptille
+- [✅] Monivaiheinen viestintäjärjestelmä virheiden estämiseksi
+- [✅] Välilehtien tilan seuranta
+- [✅] Dynaaminen content scriptin injektointi Chrome Scripting API:lla (V5.0)
+- [✅] API content scriptin tilan kyselyyn (V5.0)
+- [✅] Selkeämpi moduulirakenne ja parannetut virhelokitukset (V5.0)
+- [✅] Tiedostorakenteen organisointi ja dist-hakemisto (V5.0)
+- [⏳] Suorituskyvyn optimointi
+- [⏳] Koodin refaktorointi ja organisointi
+- [❌] Yksikkötestien lisääminen
+- [❌] TypeScript-migraatio
+- [❌] Build-prosessin luominen (src → dist)
 
-### Tulevat (❌ Ei aloitettu)
-- ❌ Firefox-tuki
-- ❌ Suorituskyvyn optimointi
-- ❌ Lokalisointi (i18n)
-- ❌ CI/CD pipeline
-- ❌ Koodin laadun tarkistukset (ESLint, Prettier)
+## Käyttöliittymä
+
+- [✅] Popup-ikkunan perustyylitys
+- [✅] Overlay-elementin tyylit
+- [✅] Tilaviestit käyttäjälle
+- [✅] Debug-ominaisuudet kehittäjille
+- [❌] Asetussivu lisäasetuksille
+- [❌] Tumma teema popup-ikkunalle
+- [❌] Responsiivisuuden parantaminen erilaisille näyttökoille
 
 ## Dokumentaatio
 
-### Ydin (✅ Valmiit)
-- ✅ README.md
-- ✅ Arkkitehtuurikuvaus
-- ✅ Frontend-dokumentaatio
+- [✅] README.md perustiedoilla
+- [✅] Arkkitehtuuri- ja tekninen dokumentaatio
+- [✅] Käyttöliittymädokumentaatio
+- [✅] Versiohistoria ja muutosloki
+- [✅] Vianetsintäopas (V5.0)
+- [❌] Käyttöohjeet loppukäyttäjille
+- [❌] Koodikommentit ja JSDocs
 
-### Seuraavat (⏳ Työn alla)
-- ⏳ API-dokumentaatio
-- ⏳ Kehitysympäristön pystytysohje
-- ⏳ Testausdokumentaatio
+## Jakelu
 
-### Tulevat (❌ Ei aloitettu)
-- ❌ Käyttöohje
-- ❌ Kontribuutio-ohje
-- ❌ Julkaisuohje
+- [✅] Toimiva kehitysversion paketointi
+- [❌] Chrome Web Store -julkaisu
+- [❌] Firefox-version luominen
+- [❌] Edge-version luominen
+- [❌] Versiointijärjestelmä
+
+## Valmistuneet ominaisuudet (V5.0)
+
+- [✅] Dynaaminen content scriptin injektointi Chrome Scripting API:lla
+- [✅] Monivaiheinen viestintä popup → background → content script
+- [✅] Content scriptin tila-API ja tilakyselyt
+- [✅] Selkeämmät ja kattavammat lokiviestit
+- [✅] Tiedostorakenteen uudelleenorganisointi (dist/src)
+- [✅] Päivitetty dokumentaatio
 
 ## Seuraavat prioriteetit
-1. Yksikkötestien kirjoittaminen
-2. Tekstin tyylin muokkausominaisuudet
-3. Firefox-tuen lisääminen 
+
+1. Build-prosessin luominen (src → dist automaattinen koonti)
+2. TypeScript-migraatio paremman tyyppitarkistuksen vuoksi
+3. Asetussivu lisäasetuksille (ulkoasun mukauttaminen)
+4. Useamman tekstin tallentaminen ja valitseminen
+5. Chrome Web Store -julkaisu 

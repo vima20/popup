@@ -1,108 +1,161 @@
-# YouTube Overlay - Frontend
+# YouTube Overlay - Käyttöliittymä
 
-## Näkymät
+## Käyttöliittymän komponentit
 
-### Popup-ikkuna
-- **Sijainti**: `src/popup/App.vue`
-- **Kuvaus**: Laajennuksen pääkäyttöliittymä tekstin muokkaamiseen
-- **Ominaisuudet**:
-  - Tekstikenttä overlay-tekstin muokkaamiseen
-  - Tallenna-painike
-  - Tilanäyttö (tallennus onnistui/epäonnistui)
-  - Ohjeteksti pikanäppäimestä
+YouTube Overlay -laajennuksen käyttöliittymä koostuu kahdesta pääkomponentista:
 
-### Overlay-komponentti
-- **Sijainti**: `src/components/Overlay.vue`
-- **Kuvaus**: YouTube-videon päällä näytettävä tekstikomponentti
-- **Ominaisuudet**:
-  - Keskitetty sijainti videon päällä
-  - Läpinäkyvä tausta
-  - Selkeä kontrasti tekstille
-  - Ei häiritse videon kontrolleja
+1. **Popup-ikkuna** - Avautuu kun käyttäjä klikkaa laajennuksen kuvaketta
+2. **Overlay-elementti** - Näkyy YouTube-videon päällä kun aktivoidaan
 
-## Tyylimäärittelyt
+## Popup-ikkuna
 
-### Värit
+![Popup-ikkuna](../images/popup-screenshot.png) *(Huomautus: kuvankaappaus on viitteellinen)*
+
+### Rakenne
+
+Popup-ikkuna on HTML-pohjainen yksinkertainen käyttöliittymä, joka sisältää:
+
+- **Otsikko**: "YouTube Overlay"
+- **Tekstikenttä**: Käyttäjän määrittelemän tekstin syöttämiseen
+- **Tallenna-painike**: Tekstin tallentamiseen
+- **Tilakenttä**: Näyttää toiminnon tilan (onnistuminen/virhe)
+- **Ohjeteksti**: Kertoo näppäinyhdistelmän (CTRL+SHIFT+F3)
+- **Debug-painike**: Testauspainike toiminnallisuuden varmistamiseen
+
+### Tyylit
+
+Popup-ikkunan tyylit on määritelty inline-tyyleillä popup.html-tiedostossa:
+
 ```css
-:root {
-  --primary-color: #FF0000;     /* YouTube punainen */
-  --text-color: #FFFFFF;        /* Valkoinen teksti */
-  --bg-overlay: rgba(0,0,0,0.8); /* Läpinäkyvä tausta */
-  --success-color: #4CAF50;     /* Vihreä onnistumisille */
-  --error-color: #F44336;       /* Punainen virheille */
+body { 
+  width: 250px; 
+  padding: 10px; 
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
 }
-```
-
-### Typografia
-```css
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+h3 {
+  margin-top: 0;
+  color: #333;
 }
-
-.overlay-text {
-  font-size: 24px;
-  font-weight: 600;
-}
-```
-
-### Komponenttien tyylit
-
-#### Popup
-```css
-.popup {
-  width: 300px;
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.button {
-  width: 100%;
+input { 
+  width: 100%; 
   padding: 8px;
-  background-color: var(--primary-color);
-  color: var(--text-color);
-  border: none;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
   border-radius: 4px;
 }
+button { 
+  width: 100%; 
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.status { 
+  margin-top: 10px; 
+  padding: 5px;
+  text-align: center;
+  font-size: 14px;
+}
+.success { 
+  color: #0f8c3e; 
+}
+.error { 
+  color: #e03c31; 
+}
+.debug-button {
+  margin-top: 10px;
+  font-size: 10px;
+  background-color: #ccc;
+}
 ```
 
-#### Overlay
+### Käyttäjäpalautteen tyypit
+
+Popup-ikkunan tilaviestit ilmaisevat käyttäjälle toiminnon tilan seuraavilla väreillä:
+
+- **Vihreä** (#0f8c3e): Onnistunut toiminto
+- **Punainen** (#e03c31): Virhe toiminnossa
+- **Harmaa** (oletusteksti): Informatiivinen viesti
+
+## Overlay-elementti
+
+![Overlay-esimerkki](../images/overlay-screenshot.png) *(Huomautus: kuvankaappaus on viitteellinen)*
+
+### Rakenne
+
+Overlay-elementti on yksinkertainen HTML-div-elementti, joka luodaan dynaamisesti injektoidulla JavaScript-koodilla (content.js). Elementti:
+
+- Näytetään YouTube-videon päällä
+- Sisältää käyttäjän määrittelemän tekstin
+- Voidaan näyttää/piilottaa näppäinyhdistelmällä CTRL+SHIFT+F3
+
+### Tyylit
+
+Overlay-elementin tyylit on määritelty content.css-tiedostossa:
+
 ```css
-.overlay {
+#youtube-overlay-extension {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: var(--bg-overlay);
-  color: var(--text-color);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
+  z-index: 9999999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-size: 24px;
+  font-weight: bold;
   pointer-events: none;
-  z-index: 999999;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 ```
 
-## Käyttöliittymän periaatteet
+Näillä tyyleillä saavutetaan:
+- Keskitetty sijainti videon päällä (fixed position, transform)
+- Puoliläpinäkyvä tumma tausta (rgba-väri 80% läpinäkyvyydellä)
+- Valkoinen, lihavoitu teksti
+- Pehmeät reunat (border-radius)
+- Elementti päällimmäisenä (korkea z-index)
+- Läpinäkyvä tausta hiiren klikkauksille (pointer-events: none)
+- Pehmeä fade-animaatio näyttämiseen/piilottamiseen (transition)
 
-1. **Yksinkertaisuus**
-   - Minimalistinen design
-   - Selkeät toiminnot
-   - Ei ylimääräisiä elementtejä
+## Käyttäjävuorovaikutus
 
-2. **Saavutettavuus**
-   - Riittävä kontrasti
-   - Selkeä typografia
-   - Näppäimistökäyttö
+### Popup-ikkunan käyttö
 
-3. **Palaute**
-   - Visuaalinen palaute toiminnoista
-   - Selkeät virheilmoitukset
-   - Latausanimaatiot tarvittaessa
+1. Käyttäjä klikkaa laajennuksen kuvaketta selaimessa
+2. Popup-ikkuna avautuu
+3. Käyttäjä syöttää haluamansa tekstin tekstikenttään
+4. Käyttäjä klikkaa "Tallenna"-painiketta
+5. Tilakenttä näyttää onnistumis- tai virheviestin
 
-4. **Responsiivisuus**
-   - Overlay skaalautuu videon koon mukaan
-   - Popup toimii eri näyttöko'oilla 
+### Overlay-elementin käyttö
+
+1. Käyttäjä navigoi YouTube-sivulle
+2. Käyttäjä painaa CTRL+SHIFT+F3
+3. Overlay-elementti ilmestyy videon päälle fade-animaatiolla
+4. Käyttäjä painaa CTRL+SHIFT+F3 uudelleen
+5. Overlay-elementti katoaa fade-animaatiolla
+
+## Responsiivisuus
+
+Overlay-elementti on suunniteltu toimimaan kaikenkokoisilla YouTube-videoilla:
+- Keskitetty sijainti varmistaa, että teksti on aina videon keskellä
+- Maksimileveys (max-width: 80%) estää tekstiä menemästä videon rajojen ulkopuolelle pienillä näytöillä
+- Kiinteä fonttikoko varmistaa luettavuuden kaikilla näytöillä
+
+## Saavutettavuus
+
+Vaikka saavutettavuudelle ei ole tehty erityisiä optimointeja, sovellus huomioi:
+- Riittävän kontrastin tekstin ja taustan välillä
+- Selkeät visuaaliset palautteet toiminnoista
+- Mahdollisuuden käyttää näppäimistöä overlay-elementin näyttämiseen/piilottamiseen 

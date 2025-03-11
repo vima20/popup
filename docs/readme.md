@@ -1,117 +1,106 @@
-# YouTube Overlay - Chrome Extension
+# YouTube Overlay Chrome -laajennus
 
-Chrome-laajennus, joka näyttää "Hello world" eli muokattavan tekstin YouTube-videoiden päällä kun painetaan CTRL + SHIFT + F3.
+Chrome-laajennus, joka mahdollistaa tekstin näyttämisen YouTube-videoiden päällä näppäinyhdistelmällä CTRL+SHIFT+F3.
 
-## Ominaisuudet
+## Yleiskatsaus
 
-- Näyttää muokattavan tekstin YouTube-videoiden päällä
-- Pikanäppäin: CTRL + SHIFT + F3
-- Teksti tallentuu automaattisesti
-- Tyylikkäät animaatiot
-- Responsiivinen suunnittelu
+Tämä laajennus on yksinkertainen ratkaisu tekstin näyttämiseen YouTube-videoiden päällä. Käyttäjä voi määrittää haluamansa tekstin, joka ilmestyy videon päälle painettaessa CTRL+SHIFT+F3. Tekstiä voi muokata milloin tahansa klikkaamalla laajennuksen kuvaketta selaimen työkalupalkissa.
 
-## Asennus
+## Uusimmat ominaisuudet (V5.0)
 
-1. Lataa laajennuksen tiedostot
-2. Avaa Chrome ja mene osoitteeseen `chrome://extensions/`
-3. Ota käyttöön "Developer mode" (Kehittäjätila)
-4. Klikkaa "Load unpacked" (Lataa pakkaamaton) ja valitse laajennuksen `dist`-kansio
+- Dynaaminen content scriptin injektointi
+- Parannettu luotettavuutta monivaiheisella viestinnällä
+- Uudistettu viestintäjärjestelmä popup, background ja content scriptien välillä
+- Lisätty API content scriptin tilan kyselyyn
+- Parannettu virhetilanteiden käsittelyä kaikissa komponenteissa
+- Selkeämmät lokiviestit helpompaan vianetsintään
+- Päivitetty tiedostorakenne erottamaan lähdekoodi ja julkaisu
 
-## Käyttö
+## Asennus ja käyttöönotto
 
-1. Avaa YouTube-video
-2. Klikkaa laajennuksen ikonia oikeassa yläkulmassa
-3. Kirjoita haluamasi teksti
+### Kehittäjätila
+
+1. Kloonaa repositorio tai lataa tiedostot
+2. Avaa Chrome-selain
+3. Siirry osoitteeseen `chrome://extensions/`
+4. Ota käyttöön "Kehittäjätila" (Developer mode) sivun oikeasta yläkulmasta
+5. Klikkaa "Lataa pakkaamaton" (Load unpacked) ja valitse projektin `dist`-kansio
+6. Laajennus on nyt asennettu ja valmis käytettäväksi
+
+### Käyttö
+
+1. Navigoi YouTube-sivulle
+2. Klikkaa laajennuksen kuvaketta selaimen työkalupalkissa
+3. Syötä haluamasi teksti
 4. Paina "Tallenna"
-5. Käytä CTRL + SHIFT + F3 näppäinyhdistelmää tekstin näyttämiseen/piilottamiseen
+5. Paina CTRL+SHIFT+F3 näyttääksesi tekstin videon päällä
+6. Teksti katoaa automaattisesti 3 sekunnin kuluttua
 
-## Kehitysympäristön pystytys
+### Vianetsintä
 
-### Edellytykset
+Jos laajennus ei toimi odotetusti:
+1. Tarkista että olet YouTube-sivulla
+2. Päivitä sivu (F5)
+3. Paina "Testaa päivitys" -nappia popup-ikkunassa
+4. Tarkista virheilmoitukset popup-ikkunassa ja selaimen konsolissa (F12)
+5. Jos mikään ei auta, poista laajennus ja asenna se uudelleen
 
-- Node.js (v16 tai uudempi)
-- npm tai yarn
-- Cursor IDE (suositeltu)
+## Tekninen toteutus
 
-### Mikä on Cursor?
+Laajennus koostuu kolmesta pääkomponentista:
 
-Cursor on moderni koodieditori, joka yhdistää tekoälyn ja koodin kirjoittamisen. Se on suunniteltu erityisesti kehittäjille, jotka haluavat tehostaa työtään tekoälyn avulla. Cursor käyttää edistyneitä kielimalleja (kuten GPT-4) tarjotakseen:
+1. **Background Script (V5.0)** - Tarkkailee välilehtien tilaa, injektoi content scriptin dynaamisesti ja hallinnoi viestintää
+2. **Content Script (V5.0)** - Luo ja hallitsee overlay-elementtiä, reagoi näppäinkomentoihin
+3. **Popup (V5.0)** - Käyttöliittymä tekstin syöttämiseen ja tallentamiseen
 
-- **Älykäs koodin täydennys**: Cursor ymmärtää kontekstin ja ehdottaa relevantteja koodinpätkiä
-- **Koodin selitykset**: Valitun koodin toiminnan selittäminen selkeästi
-- **Virheiden korjaus**: Automaattiset ehdotukset virheiden korjaamiseen
-- **Dokumentaation generointi**: Automaattinen dokumentaation luominen koodista
-- **Koodin refaktorointi**: Älykkäät ehdotukset koodin parantamiseen
-- **Git-integraatio**: Suora integraatio versionhallintaan
+### Edistynyt viestinvälitys
 
-Cursor eroaa perinteisistä koodieditoreista (kuten VS Code) siinä, että se on suunniteltu erityisesti tekoälyn hyödyntämiseen koodin kirjoittamisessa. Se ei ole pelkkä editori, vaan aktiivinen koodausavustaja, joka ymmärtää projektin kontekstin ja auttaa kehittäjää tehokkaammin.
+- Background script injektoi content scriptin tarvittaessa
+- Popup varmistaa content scriptin injektion ennen viestin lähettämistä
+- Kaikki komponentit kommunikoivat luotettavalla vastausjärjestelmällä
 
-### Cursor IDE
+## Hakemistorakenne
 
-Cursor on tekoälyavusteinen koodieditori, joka auttaa koodin kirjoittamisessa ja ymmärtämisessä. Tässä projektissa käytämme Cursoria seuraavasti:
-
-1. **Cursorin asennus**
-   - Lataa Cursor osoitteesta https://cursor.sh
-   - Asenna sovellus
-   - Kirjaudu sisään GitHub-tilillä
-
-2. **Projektin avaaminen**
-   - Avaa Cursor
-   - Valitse "Open Folder" (Avaa kansio)
-   - Valitse projektin kansio
-
-3. **Cursorin ominaisuudet**
-   - Tekoälyavusteinen koodin kirjoitus
-   - Automaattinen koodin täydennys
-   - Koodin selitykset ja dokumentaatio
-   - Virheiden korjausehdotukset
-   - Git-integraatio
-
-4. **Hyödylliset pikanäppäimet**
-   - `Ctrl + K`: Avaa tekoälyavusteinen komentorivi
-   - `Ctrl + L`: Selitä valittu koodi
-   - `Ctrl + I`: Korjaa virheet
-   - `Ctrl + Shift + L`: Lisää lokitus
-
-5. **Parhaat käytännöt**
-   - Käytä tekoälyä apuna koodin kirjoittamisessa
-   - Tarkista tekoälyn ehdottamat muutokset ennen hyväksymistä
-   - Käytä kommentteja selittämään monimutkaista logiikkaa
-   - Hyödynnä Cursorin dokumentaatiogeneraatiota
-
-### Projektin asennus
-
-```bash
-# Asenna riippuvuudet
-npm install
-
-# Käynnistä kehityspalvelin
-npm run dev
-
-# Rakenna tuotantoversio
-npm run build
+```
+youtube-overlay/
+│
+├── dist/                      # Julkaisukansio
+│   ├── icons/                 # Kuvakkeet
+│   ├── background.js          # Background script
+│   ├── content.js             # Content script
+│   ├── content.css            # Content tyylit
+│   ├── popup.html             # Popup HTML
+│   ├── popup.js               # Popup JavaScript
+│   └── manifest.json          # Laajennuksen määrittelyt
+│
+├── src/                       # Lähdekoodikansio
+│   ├── background.js          # Background scriptin lähdekoodi
+│   ├── content.js             # Content scriptin lähdekoodi
+│   ├── content.css            # Content tyylien lähdekoodi
+│   ├── popup.html             # Popup HTML lähdekoodi
+│   └── popup.js               # Popup JavaScript lähdekoodi
+│
+└── docs/                      # Dokumentaatio
 ```
 
-### Testaus
+## Projektitiedostot
 
-```bash
-# Suorita yksikkötestit
-npm run test:unit
+Katso tarkemmat tiedot seuraavista dokumenteista:
 
-# Suorita E2E-testit
-npm run test:e2e
-```
+- [Kuvaus ja käyttötarkoitus](description.md)
+- [Arkkitehtuuri ja tekninen toteutus](architecture.md)
+- [Käyttöliittymä](frontend.md)
+- [Tehtävälista](todo.md)
+- [Muutoshistoria](ai_changelog.md)
+- [Opitut asiat ja ratkaisut](learnings.md)
 
-## Tekninen dokumentaatio
+## Versiohistoria
 
-- [Sovelluksen kuvaus](docs/description.md)
-- [Tekninen arkkitehtuuri](docs/architecture.md)
-- [Käyttöliittymän dokumentaatio](docs/frontend.md)
-- [Tietomalli](docs/datamodel.md)
-- [Backend-dokumentaatio](docs/backend.md)
-- [Tehtävälista](docs/todo.md)
-- [Muutosloki](docs/ai_changelog.md)
-- [Oppimiskokemukset](docs/learnings.md)
+- **V5.0** - Dynaaminen content script injektointi, parannettu luotettavuus
+- **V4.0** - Luotettavuusparannukset, optimoitu viestinkäsittely
+- **V3.0** - Yksinkertaistettu koodi, parannetut tarkistukset
+- **V2.0** - Automaattinen päivitys kaikille välilehdille
+- **V1.0** - Ensimmäinen toimiva versio
 
 ## Lisenssi
 

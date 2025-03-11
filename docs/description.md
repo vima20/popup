@@ -1,59 +1,59 @@
 # YouTube Overlay - Kuvaus
 
-## Idea
-YouTube Overlay on Chrome-laajennus, joka mahdollistaa mukautettavan tekstin näyttämisen YouTube-videoiden päällä. Käyttäjä voi aktivoida tekstin näkyvyyden pikanäppäimellä ja muokata tekstiä laajennuksen popup-ikkunasta.
+## Sovelluksen tarkoitus
+
+YouTube Overlay on Chrome-laajennus, joka mahdollistaa käyttäjän määrittelemän tekstiviestin näyttämisen YouTube-videoiden päällä. Laajennuksen tarkoituksena on antaa käyttäjälle mahdollisuus lisätä omia muistiinpanoja, huomautuksia tai kommentteja videon päälle ilman, että niitä näkyy muille käyttäjille.
 
 ## Ydinominaisuudet
-1. **Tekstin näyttäminen**
-   - Teksti näytetään videon päällä keskellä ruutua
-   - Teksti ei häiritse videon kontrolleja tai muita elementtejä
-   - Teksti on aina luettavissa videon päällä (kontrastit huomioitu)
 
-2. **Tekstin hallinta**
-   - Teksti voidaan näyttää/piilottaa pikanäppäimellä (CTRL + SHIFT + F3)
-   - Tekstiä voi muokata laajennuksen popup-ikkunasta
-   - Teksti tallennetaan selaimen muistiin
+1. **Tekstin näyttäminen**: Käyttäjä voi näyttää määritellyn tekstin YouTube-videon päällä näppäinyhdistelmällä CTRL+SHIFT+F3.
 
-3. **Käyttöliittymä**
-   - Yksinkertainen ja selkeä popup-ikkuna tekstin muokkaamiseen
-   - Visuaalinen palaute tekstin tallennuksesta
-   - Ohjeteksti pikanäppäimen käytöstä
+2. **Tekstin muokkaus**: Käyttäjä voi muokata näytettävää tekstiä laajennuksen popup-ikkunassa.
+
+3. **Automaattinen synkronointi**: Teksti päivittyy automaattisesti kaikissa avoimissa YouTube-välilehdissä.
+
+4. **Tekstin tallennus**: Teksti tallennetaan selaimen muistiin ja säilyy selaimen uudelleenkäynnistyksen jälkeenkin.
+
+5. **Näkyvyyden hallinta**: Käyttäjä voi kytkeä tekstin näkyvyyden päälle ja pois näppäinyhdistelmällä.
 
 ## Käyttötapaukset
-1. **Muistiinpanot**
-   - Käyttäjä voi näyttää muistiinpanoja katsoessaan opetusvideota
-   - Muistiinpanot pysyvät tallessa selaimen muistissa
 
-2. **Muistutukset**
-   - Käyttäjä voi asettaa muistutuksia näkyviin videon päälle
-   - Muistutukset voi helposti piilottaa pikanäppäimellä
+### Käyttötapaus 1: Muistiinpanojen tekeminen videoita katsellessa
 
-3. **Merkinnät**
-   - Käyttäjä voi merkitä tärkeitä kohtia videosta
-   - Merkinnät säilyvät selaimen välillä
+- **Käyttäjä**: Opiskelija, joka käyttää YouTube-videoita opiskeluun
+- **Tavoite**: Tehdä muistiinpanoja videon katselun aikana
+- **Toiminta**:
+  1. Käyttäjä avaa opetusvideon YouTubessa
+  2. Käyttäjä klikkaa laajennuksen kuvaketta
+  3. Käyttäjä kirjoittaa muistiinpanon (esim. "Huomioi tämä kohta!")
+  4. Käyttäjä tallentaa tekstin
+  5. Käyttäjä painaa CTRL+SHIFT+F3 näyttääkseen muistiinpanon videon tärkeissä kohdissa
 
-## Kuvaus
-Tämä projekti on selainlaajennus, joka näyttää "Hello world!" -tekstin YouTube-videoiden päällä kun käyttäjä painaa "CTRL + SHIFT + F3" -näppäinyhdistelmää. Teksti poistuu näkyvistä kun käyttäjä painaa näppäinyhdistelmää uudestaan. Tekstiä voi muokata laajennuksen popup-ikkunasta.
+### Käyttötapaus 2: Kommenttien jakaminen näytönjaossa
 
-## Ominaisuudet
-- Overlay-komponentin luominen ja hallinta
-- Näppäinyhdistelmän (CTRL + SHIFT + F3) käsittely tekstin näyttämiseen ja piilottamiseen
-- Chrome Extension API:n käyttö
-- Vue 3 -komponenttien käyttö
-- Tailwind CSS -tyylit
-- Mukautettavan tekstin tallennus
-- Tila-indikaattori popup-ikkunassa
+- **Käyttäjä**: Henkilö, joka jakaa YouTube-videota etäkokouksessa
+- **Tavoite**: Näyttää kommentteja tai huomautuksia jaetulla videolla
+- **Toiminta**:
+  1. Käyttäjä jakaa selaimensa näytön etäkokouksessa
+  2. Käyttäjä avaa YouTube-videon
+  3. Käyttäjä määrittää tekstin laajennuksen avulla
+  4. Käyttäjä painaa CTRL+SHIFT+F3 näyttääkseen kommentin kaikille kokouksen osallistujille
+  5. Käyttäjä voi muuttaa kommenttia tarpeen mukaan kokouksen aikana
 
-## Käyttöliittymä
-1. Käyttäjä avaa YouTube-videon
-2. Laajennus latautuu automaattisesti
-3. Käyttäjä painaa CTRL + SHIFT + F3 -näppäinyhdistelmää
-4. "Hello world!" -teksti ilmestyy videon päälle
-5. Käyttäjä painaa CTRL + SHIFT + F3 -näppäinyhdistelmää uudestaan
-6. Teksti poistuu näkyvistä
+### Käyttötapaus 3: Videon merkitseminen myöhempää käyttöä varten
 
-## Tekstin muokkaus
-1. Käyttäjä avaa laajennuksen popup-ikkunan
-2. Syöttää haluamansa tekstin syöttökenttään
-3. Painaa "Save"-painiketta
-4. Teksti päivittyy overlay-ikkunaan 
+- **Käyttäjä**: Kuka tahansa YouTube-käyttäjä
+- **Tavoite**: Merkitä video tunnistettavasti myöhempää käyttöä varten
+- **Toiminta**:
+  1. Käyttäjä löytää mielenkiintoisen videon
+  2. Käyttäjä kirjoittaa muistutuksen (esim. "Katso myöhemmin tarkemmin")
+  3. Käyttäjä tallentaa tekstin
+  4. Myöhemmin palatessaan videoon teksti on edelleen saatavilla
+
+## Tulevaisuuden kehitysideat
+
+- Tuki useammalle tekstille samalla videolla
+- Mahdollisuus säätää tekstin fonttia, kokoa ja väriä
+- Mahdollisuus sijoittaa teksti videon eri kohtiin
+- Ajastetut viestit, jotka näkyvät vain tietyssä videon kohdassa
+- Kuvien tai emojien lisääminen tekstin lisäksi 
