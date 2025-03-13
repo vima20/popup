@@ -1,8 +1,8 @@
-// Background script - YouTube Overlay (V5.0)
-console.log('YouTube Overlay: Background script käynnistetty V5.0');
+// Background script - Video Overlay (V6.0)
+console.log('Video Overlay: Background script käynnistetty V6.0');
 
-// Pidä kirjaa aktiivisista YouTube-välilehdistä
-const youtubeTabsState = {};
+// Pidä kirjaa aktiivisista video-välilehdistä
+const videoTabsState = {};
 
 // Varmista että background script on aktiivinen
 keepAlive();
@@ -22,7 +22,7 @@ chrome.runtime.onInstalled.addListener(function() {
     }
   });
   
-  // Tarkista kaikki avoimet YouTube-välilehdet
+  // Tarkista kaikki avoimet välilehdet
   checkExistingTabs();
 });
 
@@ -59,12 +59,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Kuuntele välilehtien päivityksiä
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // Jos välilehti on YouTube ja valmis (complete)
-  if (tab.url && tab.url.includes('youtube.com') && changeInfo.status === 'complete') {
-    console.log('Background: YouTube-välilehti valmis:', tabId);
+  // Jos välilehti on valmis (complete)
+  if (changeInfo.status === 'complete') {
+    console.log('Background: Välilehti valmis:', tabId);
     
     // Seuraa välilehteä
-    youtubeTabsState[tabId] = {
+    videoTabsState[tabId] = {
       url: tab.url,
       contentScriptInjected: false
     };
@@ -72,7 +72,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // Injektoi content script varmuuden vuoksi
     injectContentScript(tabId)
       .then(() => {
-        youtubeTabsState[tabId].contentScriptInjected = true;
+        videoTabsState[tabId].contentScriptInjected = true;
         console.log('Background: Content script injetoitu välilehteen', tabId);
       })
       .catch(err => {
@@ -83,20 +83,20 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
 // Kuuntele välilehtien sulkemista
 chrome.tabs.onRemoved.addListener((tabId) => {
-  if (youtubeTabsState[tabId]) {
-    console.log('Background: YouTube-välilehti suljettu:', tabId);
-    delete youtubeTabsState[tabId];
+  if (videoTabsState[tabId]) {
+    console.log('Background: Välilehti suljettu:', tabId);
+    delete videoTabsState[tabId];
   }
 });
 
 // Tarkista kaikki olemassa olevat välilehdet
 function checkExistingTabs() {
-  chrome.tabs.query({url: "*://*.youtube.com/*"}, function(tabs) {
-    console.log('Background: Löytyi', tabs.length, 'YouTube-välilehteä');
+  chrome.tabs.query({}, function(tabs) {
+    console.log('Background: Löytyi', tabs.length, 'välilehteä');
     
     tabs.forEach(function(tab) {
       // Seuraa välilehteä
-      youtubeTabsState[tab.id] = {
+      videoTabsState[tab.id] = {
         url: tab.url,
         contentScriptInjected: false
       };
@@ -104,7 +104,7 @@ function checkExistingTabs() {
       // Injektoi content script
       injectContentScript(tab.id)
         .then(() => {
-          youtubeTabsState[tab.id].contentScriptInjected = true;
+          videoTabsState[tab.id].contentScriptInjected = true;
           console.log('Background: Content script injetoitu välilehteen', tab.id);
         })
         .catch(err => {
@@ -136,13 +136,13 @@ function injectContentScript(tabId) {
 // Tämä funktio suoritetaan kohdesivu-kontekstissa
 function setupMessageListener() {
   // Tarkista, onko kuuntelija jo rekisteröity
-  if (window.youtubeOverlayInitialized) {
+  if (window.videoOverlayInitialized) {
     console.log('Content (injected): Alustus jo tehty');
     return;
   }
   
   // Merkitse alustus tehdyksi
-  window.youtubeOverlayInitialized = true;
+  window.videoOverlayInitialized = true;
   
   console.log('Content (injected): Alustetaan overlay...');
   
@@ -183,7 +183,7 @@ function setupMessageListener() {
     if (overlayElement) return;
     
     overlayElement = document.createElement('div');
-    overlayElement.id = 'youtube-overlay-extension';
+    overlayElement.id = 'video-overlay-extension';
     overlayElement.style.position = 'fixed';
     overlayElement.style.top = '50%';
     overlayElement.style.left = '50%';
@@ -248,26 +248,30 @@ function setupMessageListener() {
       createOverlay();
     }
     
-    overlayVisible = !overlayVisible;
-    overlayElement.style.opacity = overlayVisible ? '1' : '0';
-    console.log('Content (injected): Overlay näkyvyys:', overlayVisible ? 'näkyvissä' : 'piilotettu');
+    if (overlayVisible) {
+      overlayElement.style.opacity = '0';
+      overlayVisible = false;
+    } else {
+      overlayElement.style.opacity = '1';
+      overlayVisible = true;
+    }
+    
+    console.log('Content (injected): Overlay vaihdettu:', overlayVisible ? 'näkyviin' : 'piiloon');
   }
   
-  // Kuuntele näppäinkomentoa (CTRL + SHIFT + F3)
-  document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.shiftKey && e.code === 'F3') {
-      console.log('Content (injected): CTRL+SHIFT+F3 painettu');
+  // Lisää näppäimistön kuuntelija
+  document.addEventListener('keydown', function(event) {
+    // CTRL + SHIFT + F3
+    if (event.ctrlKey && event.shiftKey && event.keyCode === 114) {
+      console.log('Content (injected): Näppäinyhdistelmä havaittu (CTRL+SHIFT+F3)');
       toggleOverlay();
     }
   });
   
-  // Lataa tallennettu teksti
-  chrome.storage.sync.get('overlayText', function(data) {
-    if (data.overlayText) {
-      overlayText = data.overlayText;
-      console.log('Content (injected): Teksti ladattu storagesta:', overlayText);
-    }
-  });
-  
-  console.log('Content (injected): YouTube Overlay alustettu onnistuneesti');
+  // Luo overlay heti kun mahdollista
+  if (document.body) {
+    createOverlay();
+  } else {
+    document.addEventListener('DOMContentLoaded', createOverlay);
+  }
 } 

@@ -1,14 +1,15 @@
-// YouTube Overlay - Content Script
-console.log('YouTube Overlay: Content script ladattu - V5.0');
+// Video Overlay - Content Script
+console.log('Video Overlay: Content script ladattu - V6.0');
 
 // Globaalit muuttujat
 let overlayElement = null;
 let overlayVisible = false;
 let overlayText = 'Hello world!';
 let overlayInitialized = false;
+let videoElement = null;
 
 // Merkki, että content script on aktiivinen
-window.youtubeOverlayActive = true;
+window.videoOverlayActive = true;
 
 // Tyyli overlaylle
 const overlayStyles = {
@@ -31,20 +32,43 @@ const overlayStyles = {
   transition: 'opacity 0.3s ease'
 };
 
+// Etsi video-elementti sivulta
+function findVideoElement() {
+  // Etsi kaikki video-elementit
+  const videoElements = document.querySelectorAll('video');
+  
+  // Jos video-elementtejä löytyy, valitse ensimmäinen
+  if (videoElements.length > 0) {
+    videoElement = videoElements[0];
+    console.log('Video Overlay: Video-elementti löydetty');
+    return true;
+  }
+  
+  // Jos video-elementtiä ei löydy, odota hetki ja yritä uudelleen
+  console.log('Video Overlay: Video-elementtiä ei löydy, yritetään uudelleen');
+  return false;
+}
+
 // Luo overlay elementti kun DOM on valmis
 function createOverlay() {
   if (overlayElement) {
-    console.log('YouTube Overlay: Overlay on jo luotu');
+    console.log('Video Overlay: Overlay on jo luotu');
     return;
   }
 
   if (!document.body) {
-    console.log('YouTube Overlay: Body elementtiä ei löydy, odotetaan DOM:ia');
+    console.log('Video Overlay: Body elementtiä ei löydy, odotetaan DOM:ia');
     setTimeout(createOverlay, 100);
     return;
   }
 
-  console.log('YouTube Overlay: Luodaan overlay');
+  // Etsi video-elementti
+  if (!findVideoElement()) {
+    setTimeout(createOverlay, 1000);
+    return;
+  }
+
+  console.log('Video Overlay: Luodaan overlay');
   
   // Luo elementti
   overlayElement = document.createElement('div');
@@ -58,19 +82,19 @@ function createOverlay() {
   // Lisää DOM:iin
   document.body.appendChild(overlayElement);
   
-  console.log('YouTube Overlay: Overlay luotu ja lisätty DOM:iin');
+  console.log('Video Overlay: Overlay luotu ja lisätty DOM:iin');
   overlayInitialized = true;
 }
 
 // Näytä overlay
 function showOverlay() {
   if (!overlayElement) {
-    console.log('YouTube Overlay: Overlay ei ole vielä luotu, luodaan nyt');
+    console.log('Video Overlay: Overlay ei ole vielä luotu, luodaan nyt');
     createOverlay();
   }
   
   if (!overlayVisible) {
-    console.log('YouTube Overlay: Näytetään overlay, teksti:', overlayText);
+    console.log('Video Overlay: Näytetään overlay, teksti:', overlayText);
     overlayElement.style.opacity = '1';
     overlayVisible = true;
     
@@ -82,7 +106,7 @@ function showOverlay() {
 // Piilota overlay
 function hideOverlay() {
   if (overlayElement && overlayVisible) {
-    console.log('YouTube Overlay: Piilotetaan overlay');
+    console.log('Video Overlay: Piilotetaan overlay');
     overlayElement.style.opacity = '0';
     overlayVisible = false;
   }
@@ -90,7 +114,7 @@ function hideOverlay() {
 
 // Päivitä overlay-teksti
 function updateOverlayText(newText) {
-  console.log('YouTube Overlay: Päivitetään teksti:', newText);
+  console.log('Video Overlay: Päivitetään teksti:', newText);
   overlayText = newText || 'Hello world!';
   
   if (overlayElement) {
@@ -103,7 +127,7 @@ function updateOverlayText(newText) {
 
 // Ota vastaan viestejä
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  console.log('YouTube Overlay: Viesti vastaanotettu:', message);
+  console.log('Video Overlay: Viesti vastaanotettu:', message);
   
   // Varmista, että overlay on alustettu
   if (!overlayInitialized) {
@@ -113,7 +137,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   // Käsittele eri viestityypit
   if (message.action === 'updateText') {
     const result = updateOverlayText(message.text);
-    console.log('YouTube Overlay: Teksti päivitetty, vastaus:', result);
+    console.log('Video Overlay: Teksti päivitetty, vastaus:', result);
     sendResponse(result);
     return true; // Pidä viestikanava auki asynkronista vastausta varten
   } 
@@ -131,13 +155,14 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
     sendResponse({
       initialized: overlayInitialized,
       visible: overlayVisible,
-      text: overlayText
+      text: overlayText,
+      videoFound: !!videoElement
     });
     return true;
   }
   
   // Tuntematon viestityyppi
-  console.warn('YouTube Overlay: Tuntematon viestityyppi:', message.action);
+  console.warn('Video Overlay: Tuntematon viestityyppi:', message.action);
   sendResponse({ success: false, error: 'Tuntematon toiminto' });
   return true;
 });
@@ -146,7 +171,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
 document.addEventListener('keydown', function(event) {
   // CTRL + SHIFT + F3
   if (event.ctrlKey && event.shiftKey && event.keyCode === 114) {
-    console.log('YouTube Overlay: Näppäinyhdistelmä havaittu (CTRL+SHIFT+F3)');
+    console.log('Video Overlay: Näppäinyhdistelmä havaittu (CTRL+SHIFT+F3)');
     showOverlay();
   }
 });
@@ -157,7 +182,7 @@ createOverlay();
 // Lataa tallennettu teksti storage:sta
 chrome.storage.sync.get('overlayText', function(data) {
   if (data.overlayText) {
-    console.log('YouTube Overlay: Ladattu tallennettu teksti:', data.overlayText);
+    console.log('Video Overlay: Ladattu tallennettu teksti:', data.overlayText);
     updateOverlayText(data.overlayText);
   }
 });
@@ -169,4 +194,4 @@ chrome.runtime.sendMessage({
 });
 
 // Diagnostiikka
-console.log('YouTube Overlay: Content script alustettu - URL:', window.location.href); 
+console.log('Video Overlay: Content script alustettu - URL:', window.location.href); 

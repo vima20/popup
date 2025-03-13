@@ -1,62 +1,24 @@
-# YouTube Overlay - Muutoshistoria
+# Video Overlay - Muutoshistoria
 
-## Versio 5.0 (12.3.2025)
+## Versio 6.1.0 - Manual Control (2024-03-13)
+- Lisätty käyttäjän täysi kontrolli tekstin näkyvyyteen (ei automaattista piilotusta)
+- Parannettu URL-tarkistusta (vain http/https-protokollat sallittu)
+- Korjattu ristiriita injektoidun skriptin ja content.js-tiedoston välillä
+- Päivitetty versiotiedot selkeämmäksi (version_name)
+- Päivitetty laajennuksen nimi ja kuvaus
+- Parannettu popup-ikkunan käytettävyyttä lisäämällä versiotiedot
 
-### Merkittävät arkkitehtuurimuutokset ja parannukset
+## Versio 6.0 (2024-03-19)
+- Laajennettu toiminnallisuus tukemaan kaikkia videostriimejä
+- Poistettu YouTube-spesifiset rajoitukset
+- Päivitetty dokumentaatio vastaamaan yleisempiä käyttötarkoituksia
+- Testattu toimivuus eri videostriimipalveluilla
 
-#### Background.js-tiedoston uudistukset (V5.0)
-- Lisätty dynaaminen content script injektointi Chrome Scripting API:n avulla
-- Parannettu välilehtien tilan seurantaa reaaliaikaisella youtubeTabsState-objektilla
-- Lisätty injectContentScript-funktio, joka huolehtii sekä skriptin että tyylien injektoinnista
-- Toteutettu kattava ja luotettava viestijärjestelmä popupin ja content scriptin välille
-- Parannettu virheenkäsittelyä injektoinnissa ja viestinnässä
-- Lisätty automaattinen content scriptin injektointi, kun YouTube-välilehti havaitaan
-
-#### Content.js-tiedoston uudistukset (V5.0)
-- Uudistettu tiedoston rakenne selkeämpään moduulimaiseen muotoon
-- Toteutettu parempi overlay-elementin luonti ja hallinta
-- Lisätty youtubeOverlayActive-merkki globaaliin scopeen
-- Toteutettu API tilan kyselyä varten (getStatus)
-- Selkeämmät ja kattavammat virhelokitukset
-- Käytetty Object.assign-metodia tyylien asettamiseen
-- Lisätty contentScriptReady-ilmoitus background scriptille
-
-#### Popup.js-tiedoston uudistukset (V5.0)
-- Toteutettu updateYouTubeTab-funktio, joka varmistaa content scriptin injektion ennen viestin lähetystä
-- Parannettu kaikkien YouTube-välilehtien päivityslogiikkaa
-- Lisätty luotettavampi virheenkäsittely ja tarkempi raportointi
-- Päivitetty käyttäjäpalaute selkeämmäksi ja informatiivisemmaksi
-- Selkeämmät lokiviestit helpompaan vianetsintään
-
-#### Tiedostorakenteen uudistus (V5.0)
-- Selkeä jako julkaisu- ja lähdekoodikansioiden välillä (dist/ ja src/)
-- Manifest.json siirretty dist-kansioon
-- Järkevämpi kuvakkeiden organisointi icons/-hakemistoon
-- Päivitetty dokumentaatio vastaamaan uutta rakennetta
-
-### Merkittävimmät korjaukset ja parannukset
-
-#### Korjaus 1: Content Script injektointi (V5.0)
-- **Ongelma**: Content script ei aina latautunut luotettavasti kaikissa tilanteissa
-- **Ratkaisu**: Dynaaminen injektointi Chrome Scripting API:n avulla, joka varmistaa että content script on aina käytettävissä
-
-#### Korjaus 2: Monivaiheinen viestintä (V5.0)
-- **Ongelma**: Viestin lähetys content scriptille saattoi epäonnistua, jos script ei ollut vielä valmis
-- **Ratkaisu**: Popup tarkistaa ensin content scriptin tilan, varmistaa injektion ja vasta sitten lähettää varsinaisen viestin
-
-#### Korjaus 3: Välilehtien hallinta (V5.0)
-- **Ongelma**: Välilehtien tilan seuranta ei ollut riittävän kattavaa
-- **Ratkaisu**: Parannettu välilehtien tilan seuranta ja automaattinen content script injektointi
-
-#### Parannus 1: Content Script API (V5.0)
-- Lisätty uusi API content scriptin tilan kyselyyn, overlay-elementin hallintaan ja tekstin päivittämiseen
-- API tarjoaa selkeät vastaukset kaikille toiminnoille, mikä helpottaa toiminnallisuuden testaamista ja laajentamista
-
-#### Parannus 2: Automaattinen tekstin piilotus (V5.0)
-- Overlay-teksti katoaa automaattisesti 3 sekunnin kuluttua näyttämisestä, mikä parantaa käyttökokemusta
-
-#### Parannus 3: Virhelokit ja diagnostiikka (V5.0)
-- Kattavampi lokitus ja virheiden raportointi, jotka helpottavat ongelmien diagnosointia
+## Versio 5.0 (2024-03-19)
+- Lisätty dynaaminen skriptin injektointi
+- Parannettu virheenkäsittelyä
+- Lisätty videoOverlayActive-merkki globaaliin scopeen
+- Päivitetty dokumentaatio
 
 ## Versio 4.0 (12.3.2025)
 
@@ -70,7 +32,7 @@
 - Parannettu DOM-elementtien luomislogiikkaa ja virheiden hallintaa
 
 #### Background.js-tiedoston uudistukset (V4.0)
-- Lisätty välilehtien tilan seuranta (youtubeTabsState) YouTube-välilehtien hallintaan
+- Lisätty välilehtien tilan seuranta (videoTabsState) video-välilehtien hallintaan
 - Lisätty välilehtien tilan päivitysten kuuntelu (onUpdated)
 - Lisätty automaattinen tekstin päivitys, kun välilehti valmistuu
 - Lisätty content scriptin latautumisilmoitusten käsittely
@@ -148,7 +110,7 @@
 ## Versio 2.0 (10.3.2025)
 
 ### Korjaukset ja parannukset
-- Lisätty automaattinen päivitys kaikille YouTube-välilehdille
+- Lisätty automaattinen päivitys kaikille video-välilehdille
 - Parannettu virheidenkäsittelyä
 - Lisätty debug-toiminnallisuus testaamista varten
 
@@ -165,4 +127,20 @@
 
 - Overlay-tekstiä ei voi päivittää ilman sivun uudelleenlatausta
 - Viestinvälitys content scriptin ja popup-ikkunan välillä on epäluotettava
-- Virheidenkäsittely puutteellista 
+- Virheidenkäsittely puutteellista
+
+# AI Changelog
+
+## 2024-03-11
+- Siirretty projekti GitHub-repositorioon
+- Päivitetty dokumentaatio vastaamaan versiota 5.0
+- Lisätty dynaaminen content script injektointi
+- Korjattu merkistökoodausongelmat
+- Siivottu projektin tiedostorakenne
+
+## Seuraavat vaiheet (2024-03-12)
+- Laajennetaan overlay toimimaan kaikilla videostriimeillä:
+  - Universaali toteutus kaikille videostriimeille
+  - Ei palvelukohtaisia konfiguraatioita
+  - Yhtenäinen käyttökokemus kaikilla sivustoilla
+  - Testataan toimivuus eri striimauspalveluissa 

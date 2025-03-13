@@ -1,4 +1,60 @@
-# YouTube Overlay - Arkkitehtuuri
+# Video Overlay - Arkkitehtuuri
+
+## Yleiskuvaus
+Video Overlay on Chrome-laajennus, joka mahdollistaa tekstin näyttämisen minkä tahansa videostriimin päällä. Laajennus käyttää Chrome Extension API:a ja modernia web-teknologiaa.
+
+## Tekninen rakenne
+
+### Tiedostorakenne
+```
+video-overlay/
+├── dist/              # Julkaistut tiedostot
+│   ├── manifest.json  # Laajennuksen määrittelyt
+│   ├── background.js  # Taustaprosessi
+│   ├── content.js     # Sivun sisältöskripti
+│   ├── popup.js       # Popup-ikkunan logiikka
+│   ├── popup.html     # Popup-ikkunan HTML
+│   ├── content.css    # Overlay-tyylit
+│   └── icons/         # Laajennuksen kuvakkeet
+├── src/               # Lähdekoodi
+└── docs/              # Dokumentaatio
+```
+
+### Komponentit
+
+#### Background Script (background.js)
+- Hallinnoi laajennuksen tilaa
+- Käsittelee viestit popup-ikkunasta
+- Injektoroi content scriptin tarvittaessa
+- Seuraa välilehtien tilaa
+
+#### Content Script (content.js)
+- Luo ja hallinnoi overlay-elementtiä
+- Käsittelee näppäinkomennot
+- Viestii background scriptin kanssa
+
+#### Popup (popup.html/js)
+- Käyttöliittymä tekstin muokkaamiseen
+- Näyttää laajennuksen tilan
+- Viestii background scriptin kanssa
+
+### Tietovirrat
+
+#### Tekstin päivitys
+1. Käyttäjä muokkaa tekstiä popup-ikkunassa
+2. Popup lähettää viestin background scriptille
+3. Background script injektoi content scriptin tarvittaessa
+4. Content script päivittää overlay-elementin tekstin
+
+#### Näppäinkomennot
+1. Käyttäjä painaa CTRL+SHIFT+F3
+2. Content script tunnistaa komennon
+3. Content script näyttää/piilottaa overlay-elementin
+
+### Tietoturva
+- Laajennuksen oikeudet on rajattu vain tarpeellisiin (storage, tabs, scripting)
+- Host-oikeudet (kaikki URL-osoitteet)
+- Content script injektoidaan vain tarvittaessa
 
 ## Tekninen ympäristö
 

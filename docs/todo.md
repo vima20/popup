@@ -1,17 +1,19 @@
-# YouTube Overlay - Tehtävälista
+# Video Overlay - Tehtävälista
 
 ## Ominaisuudet
 
 ### Ydinominaisuudet
 
-- [✅] Overlay-elementin luominen ja näyttäminen YouTube-videoissa
+- [✅] Overlay-elementin luominen ja näyttäminen videoiden päällä
 - [✅] Näppäinyhdistelmä (CTRL+SHIFT+F3) elementin näyttämiseen
 - [✅] Käyttäjän määrittelemän tekstin syöttäminen popup-ikkunassa
 - [✅] Tekstin tallentaminen Chrome storage -rajapinnan avulla
-- [✅] Automaattinen tekstin päivitys kaikille avoimille YouTube-välilehdille
+- [✅] Automaattinen tekstin päivitys kaikille avoimille välilehdille
 - [✅] Virheidenkäsittely ja käyttäjäpalaute
 - [✅] Popup-ikkunan käyttöliittymä
-- [✅] Automaattinen overlay-piilotus 3 sekunnin kuluttua
+- [❌] ~Automaattinen overlay-piilotus 3 sekunnin kuluttua~ (Korvattu käyttäjän täydellä kontrollilla v6.1.0)
+- [✅] Turvallisten URL-tarkistusten tuki (vain http/https-protokollat)
+- [✅] Käyttäjän täysi kontrolli tekstin näkyvyyteen
 
 ### Parannukset ja kehitysideat
 
@@ -86,4 +88,24 @@
 2. TypeScript-migraatio paremman tyyppitarkistuksen vuoksi
 3. Asetussivu lisäasetuksille (ulkoasun mukauttaminen)
 4. Useamman tekstin tallentaminen ja valitseminen
-5. Chrome Web Store -julkaisu 
+5. Chrome Web Store -julkaisu
+
+## Laajennuksen toiminnallisuus
+✅ Video-overlay perustoiminnallisuus
+✅ Tekstin muokkaus popup-ikkunasta
+✅ Dynaaminen content scriptin injektointi
+❌ Overlay kaikille videostriimeille:
+   - Toimii kaikilla videostriimisivustoilla
+   - Sama käyttökokemus palvelusta riippumatta
+   - Yksinkertainen toteutus ilman palvelukohtaisia säätöjä
+
+## Testaus
+✅ Perustoiminnallisuuden testaus
+❌ Testaus eri striimisivustoilla:
+   - Toimivuus yleisimmillä videostriimeillä
+   - Yhtenäinen käyttökokemus
+   - Suorituskyvyn varmistus
+
+## Julkaisu
+✅ GitHub repositorio
+❌ Chrome Web Store julkaisu 

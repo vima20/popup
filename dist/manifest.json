@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Overlay",
-  "version": "1.0",
-  "description": "Näytä teksti YouTube-videon päällä",
+  "name": "Video Overlay v6.1.0",
+  "version": "6.1.0",
+  "version_name": "6.1.0 - Manual Control",
+  "description": "Näyttää tekstin videon päällä kun painat CTRL+SHIFT+F3",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -19,21 +20,10 @@
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [{
-    "matches": ["*://*.youtube.com/*"],
-    "js": ["content.js"],
-    "css": ["content.css"],
-    "run_at": "document_start",
-    "all_frames": true
-  }],
   "permissions": [
     "storage", 
     "tabs", 
     "scripting"
   ],
-  "host_permissions": ["*://*.youtube.com/*"],
-  "web_accessible_resources": [{
-    "resources": ["content.js", "content.css"],
-    "matches": ["*://*.youtube.com/*"]
-  }]
+  "host_permissions": ["<all_urls>"]
 } 

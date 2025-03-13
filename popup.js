@@ -1,79 +1,165 @@
-// Popup script
-const app = Vue.createApp({
-  data() {
-    return {
-      overlayText: 'Hello world!',
-      statusMessage: '',
-      statusClass: ''
-    }
-  },
-  mounted() {
-    // Load saved text
-    chrome.storage.sync.get('overlayText', (result) => {
-      if (result.overlayText) {
-        this.overlayText = result.overlayText;
+// Popup script - Video Overlay
+console.log('Video Overlay: Popup script ladattu - V6.0');
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Haetaan UI elementit
+  const textInput = document.getElementById('overlayText');
+  const saveButton = document.getElementById('saveButton');
+  const debugButton = document.getElementById('debugButton');
+  const statusDiv = document.getElementById('status');
+  
+  // Lataa tallennettu teksti
+  loadSavedText();
+  
+  // Lataus-funktio
+  function loadSavedText() {
+    chrome.storage.sync.get('overlayText', function(data) {
+      if (data.overlayText) {
+        textInput.value = data.overlayText;
+        console.log('Popup: Ladattu tallennettu teksti:', data.overlayText);
       }
     });
-  },
-  methods: {
-    async saveText() {
-      try {
-        await chrome.storage.sync.set({ overlayText: this.overlayText });
-        // Update overlay text in content script
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        if (tab?.id) {
-          await chrome.tabs.sendMessage(tab.id, {
-            type: 'updateOverlayText',
-            text: this.overlayText
-          });
-        }
-        this.statusMessage = 'Settings saved successfully!';
-        this.statusClass = 'text-green-600';
-      } catch (error) {
-        console.error('Failed to save settings:', error);
-        this.statusMessage = 'Failed to save settings';
-        this.statusClass = 'text-red-600';
-      }
-    }
-  },
-  template: `
-    <div class="container bg-white rounded-lg shadow-lg p-4">
-      <h1 class="text-xl font-bold mb-4">YouTube Overlay Extension</h1>
-      <div class="mb-4">
-        <label class="block text-sm font-medium mb-1" for="overlayText">
-          Overlay Text
-        </label>
-        <input
-          id="overlayText"
-          v-model="overlayText"
-          type="text"
-          class="w-full px-3 py-2 border rounded"
-        />
-        <button
-          class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          @click="saveText"
-        >
-          Save
-        </button>
-        <div class="status-indicator mt-2 text-sm" :class="statusClass">
-          {{ statusMessage }}
-        </div>
-      </div>
-      <div class="text-sm text-gray-600">
-        Press CTRL + SHIFT + F3 to toggle overlay
-      </div>
-    </div>
-  `
-});
-
-app.mount('#app');
-
-document.getElementById('save').addEventListener('click', async () => {
-  const text = document.getElementById('text').value;
-  await chrome.storage.sync.set({ overlayText: text });
-  
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tab?.id) {
-    chrome.tabs.sendMessage(tab.id, { type: 'updateOverlayText', text });
   }
-});
+  
+  // Näytä tilaviesti käyttäjälle
+  function showStatus(message, type) {
+    statusDiv.textContent = message;
+    statusDiv.className = 'status ' + (type || 'info');
+    
+    console.log('Popup: Tila:', type, message);
+    
+    // Automaattinen tyhjennys 3 sekunnin jälkeen
+    setTimeout(function() {
+      if (statusDiv.textContent === message) {
+        statusDiv.textContent = '';
+        statusDiv.className = 'status';
+      }
+    }, 3000);
+  }
+  
+  // Tarkista onko välilehti video-sivu
+  function isVideoTab(tab) {
+    return tab && tab.url && tab.url.includes('video');
+  }
+  
+  // Debug-nappi testaukseen
+  debugButton.addEventListener('click', function() {
+    console.log('Popup: Debug-nappia painettu');
+    
+    // Näytä latausanimaatio
+    debugButton.disabled = true;
+    const originalText = debugButton.textContent;
+    debugButton.textContent = 'Testataan...';
+    
+    try {
+      // Hae aktiivinen välilehti
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (!tabs || !tabs.length) {
+          console.error('Popup: Ei aktiivista välilehteä!');
+          showStatus('Ei aktiivista välilehteä!', 'error');
+          debugButton.disabled = false;
+          debugButton.textContent = originalText;
+          return;
+        }
+        
+        const activeTab = tabs[0];
+        console.log('Popup: Aktiivinen välilehti:', activeTab.url);
+        
+        if (!isVideoTab(activeTab)) {
+          console.warn('Popup: Ei video-välilehti!');
+          showStatus('Avaa video-sivu ensin!', 'error');
+          debugButton.disabled = false;
+          debugButton.textContent = originalText;
+          return;
+        }
+        
+        const text = textInput.value || 'Hello world!';
+        const testText = text + ' (testi ' + new Date().toLocaleTimeString() + ')';
+        
+        console.log('Popup: Lähetetään testipäivitys:', testText);
+        showStatus('Lähetetään testipäivitys...', 'info');
+        
+        // Tallenna ensin storageen
+        chrome.storage.sync.set({overlayText: testText}, function() {
+          if (chrome.runtime.lastError) {
+            console.error('Popup: Virhe tallentaessa storageen:', chrome.runtime.lastError.message);
+            showStatus('Virhe tallentaessa asetuksia: ' + chrome.runtime.lastError.message, 'error');
+            debugButton.disabled = false;
+            debugButton.textContent = originalText;
+            return;
+          }
+          
+          console.log('Popup: Testi tallennettu storageen');
+          
+          // Suora viesti content scriptille - yksinkertaisempi toteutus
+          setTimeout(() => {
+            try {
+              chrome.tabs.sendMessage(
+                activeTab.id,
+                { action: 'updateText', text: testText },
+                function(response) {
+                  debugButton.disabled = false;
+                  debugButton.textContent = originalText;
+                  
+                  if (chrome.runtime.lastError) {
+                    const errorMsg = chrome.runtime.lastError.message;
+                    console.error('Popup: Content script virhe:', errorMsg);
+                    showStatus('Content script ei vastaa: ' + errorMsg, 'error');
+                    return;
+                  }
+                  
+                  if (response && response.received) {
+                    console.log('Popup: Viesti vastaanotettu content scriptissä:', response);
+                    showStatus('Testi onnistui! Paina CTRL+SHIFT+F3 nähdäksesi teksti.', 'success');
+                  } else {
+                    console.error('Popup: Epäselvä vastaus content scriptiltä');
+                    showStatus('Epäselvä vastaus content scriptiltä', 'error');
+                  }
+                }
+              );
+            } catch (e) {
+              console.error('Popup: Virhe viestin lähetyksessä:', e);
+              showStatus('Virhe viestin lähetyksessä: ' + e.message, 'error');
+              debugButton.disabled = false;
+              debugButton.textContent = originalText;
+            }
+          }, 100);
+        });
+      });
+    } catch (e) {
+      console.error('Popup: Poikkeus debug-toiminnossa:', e);
+      showStatus('Virhe: ' + e.message, 'error');
+      debugButton.disabled = false;
+      debugButton.textContent = originalText;
+    }
+  });
+  
+  // Tallenna-nappi
+  saveButton.addEventListener('click', function() {
+    if (saveButton.disabled) return;
+    
+    console.log('Popup: Tallenna-nappia painettu');
+    const text = textInput.value || 'Hello world!';
+    
+    // Näytä latausanimaatio
+    saveButton.disabled = true;
+    const originalText = saveButton.textContent;
+    saveButton.textContent = 'Tallennetaan...';
+    
+    // Tallenna storageen
+    chrome.storage.sync.set({overlayText: text}, function() {
+      if (chrome.runtime.lastError) {
+        console.error('Popup: Virhe tallentaessa storageen:', chrome.runtime.lastError.message);
+        showStatus('Virhe tallentaessa: ' + chrome.runtime.lastError.message, 'error');
+        saveButton.disabled = false;
+        saveButton.textContent = originalText;
+        return;
+      }
+      
+      console.log('Popup: Teksti tallennettu storageen:', text);
+      showStatus('Tallennettu! Paina CTRL+SHIFT+F3 nähdäksesi teksti.', 'success');
+      saveButton.disabled = false;
+      saveButton.textContent = originalText;
+    });
+  });
+}); 

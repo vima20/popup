@@ -1,5 +1,5 @@
-// Popup script - YouTube Overlay
-console.log('YouTube Overlay: Popup script ladattu - V5.0');
+// Popup script - Video Overlay
+console.log('Video Overlay: Popup script ladattu - V6.0');
 
 document.addEventListener('DOMContentLoaded', function() {
   // Haetaan UI elementit
@@ -37,14 +37,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 3000);
   }
   
-  // Tarkista onko välilehti YouTube
-  function isYouTubeTab(tab) {
-    return tab && tab.url && tab.url.indexOf('youtube.com') !== -1;
-  }
-  
-  // Päivitä YouTube-välilehden teksti
-  function updateYouTubeTab(tabId, text, callback) {
-    console.log('Popup: Päivitetään YouTube-välilehden', tabId, 'teksti:', text);
+  // Päivitä välilehden teksti
+  function updateTab(tabId, text, callback) {
+    console.log('Popup: Päivitetään välilehden', tabId, 'teksti:', text);
     
     // Varmista että content script on injekoitu
     chrome.runtime.sendMessage(
@@ -117,14 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const activeTab = tabs[0];
         console.log('Popup: Aktiivinen välilehti:', activeTab.url);
         
-        if (!isYouTubeTab(activeTab)) {
-          console.warn('Popup: Ei YouTube-välilehti!');
-          showStatus('Avaa YouTube-sivu ensin!', 'error');
-          debugButton.disabled = false;
-          debugButton.textContent = originalText;
-          return;
-        }
-        
         const text = textInput.value || 'Hello world!';
         const testText = text + ' (testi ' + new Date().toLocaleTimeString() + ')';
         
@@ -144,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('Popup: Testi tallennettu storageen');
           
           // Päivitä aktiivisen välilehden teksti
-          updateYouTubeTab(activeTab.id, testText, function(response) {
+          updateTab(activeTab.id, testText, function(response) {
             debugButton.disabled = false;
             debugButton.textContent = originalText;
             
@@ -192,17 +179,17 @@ document.addEventListener('DOMContentLoaded', function() {
       
       console.log('Popup: Teksti tallennettu storageen:', text);
       
-      // Päivitä kaikki YouTube-välilehdet
-      chrome.tabs.query({url: "*://*.youtube.com/*"}, function(tabs) {
+      // Päivitä kaikki välilehdet
+      chrome.tabs.query({}, function(tabs) {
         if (tabs && tabs.length > 0) {
-          console.log('Popup: Päivitetään', tabs.length, 'YouTube-välilehteä');
+          console.log('Popup: Päivitetään', tabs.length, 'välilehteä');
           
           // Päivitä jokainen välilehti
           let updateCount = 0;
           let errorCount = 0;
           
           tabs.forEach(function(tab) {
-            updateYouTubeTab(tab.id, text, function(response) {
+            updateTab(tab.id, text, function(response) {
               if (response && response.success) {
                 updateCount++;
                 console.log('Popup: Välilehti', tab.id, 'päivitetty');

@@ -1,105 +1,73 @@
-# YouTube Overlay - Käyttöliittymä
+# Video Overlay - Frontend
 
-## Käyttöliittymän komponentit
+## Käyttöliittymäkomponentit
 
-YouTube Overlay -laajennuksen käyttöliittymä koostuu kahdesta pääkomponentista:
-
-1. **Popup-ikkuna** - Avautuu kun käyttäjä klikkaa laajennuksen kuvaketta
-2. **Overlay-elementti** - Näkyy YouTube-videon päällä kun aktivoidaan
-
-## Popup-ikkuna
-
-![Popup-ikkuna](../images/popup-screenshot.png) *(Huomautus: kuvankaappaus on viitteellinen)*
-
-### Rakenne
-
-Popup-ikkuna on HTML-pohjainen yksinkertainen käyttöliittymä, joka sisältää:
-
-- **Otsikko**: "YouTube Overlay"
-- **Tekstikenttä**: Käyttäjän määrittelemän tekstin syöttämiseen
-- **Tallenna-painike**: Tekstin tallentamiseen
-- **Tilakenttä**: Näyttää toiminnon tilan (onnistuminen/virhe)
-- **Ohjeteksti**: Kertoo näppäinyhdistelmän (CTRL+SHIFT+F3)
-- **Debug-painike**: Testauspainike toiminnallisuuden varmistamiseen
-
-### Tyylit
-
-Popup-ikkunan tyylit on määritelty inline-tyyleillä popup.html-tiedostossa:
-
-```css
-body { 
-  width: 250px; 
-  padding: 10px; 
-  font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
-}
-h3 {
-  margin-top: 0;
-  color: #333;
-}
-input { 
-  width: 100%; 
-  padding: 8px;
-  margin: 8px 0;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-button { 
-  width: 100%; 
-  margin-top: 8px;
-  padding: 8px;
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.status { 
-  margin-top: 10px; 
-  padding: 5px;
-  text-align: center;
-  font-size: 14px;
-}
-.success { 
-  color: #0f8c3e; 
-}
-.error { 
-  color: #e03c31; 
-}
-.debug-button {
-  margin-top: 10px;
-  font-size: 10px;
-  background-color: #ccc;
-}
+### Popup (popup.html)
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Video Overlay</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 5px;
+      resize: vertical;
+    }
+    button {
+      padding: 8px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .status {
+      padding: 5px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .success {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .error {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Video Overlay</h2>
+    <textarea id="overlayText" placeholder="Kirjoita teksti tähän..."></textarea>
+    <button id="saveButton">Tallenna teksti</button>
+    <button id="testButton">Testaa näkyvyyttä</button>
+    <div id="status" class="status"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
 ```
 
-### Käyttäjäpalautteen tyypit
-
-Popup-ikkunan tilaviestit ilmaisevat käyttäjälle toiminnon tilan seuraavilla väreillä:
-
-- **Vihreä** (#0f8c3e): Onnistunut toiminto
-- **Punainen** (#e03c31): Virhe toiminnossa
-- **Harmaa** (oletusteksti): Informatiivinen viesti
-
-## Overlay-elementti
-
-![Overlay-esimerkki](../images/overlay-screenshot.png) *(Huomautus: kuvankaappaus on viitteellinen)*
-
-### Rakenne
-
-Overlay-elementti on yksinkertainen HTML-div-elementti, joka luodaan dynaamisesti injektoidulla JavaScript-koodilla (content.js). Elementti:
-
-- Näytetään YouTube-videon päällä
-- Sisältää käyttäjän määrittelemän tekstin
-- Voidaan näyttää/piilottaa näppäinyhdistelmällä CTRL+SHIFT+F3
-
-### Tyylit
-
-Overlay-elementin tyylit on määritelty content.css-tiedostossa:
-
+### Overlay (content.css)
 ```css
-#youtube-overlay-extension {
+#video-overlay-extension {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -107,44 +75,93 @@ Overlay-elementin tyylit on määritelty content.css-tiedostossa:
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 20px;
-  border-radius: 10px;
-  z-index: 9999999;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  border-radius: 8px;
+  z-index: 999999;
   font-size: 24px;
   font-weight: bold;
   pointer-events: none;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#video-overlay-extension.visible {
+  opacity: 1;
 }
 ```
 
-Näillä tyyleillä saavutetaan:
-- Keskitetty sijainti videon päällä (fixed position, transform)
-- Puoliläpinäkyvä tumma tausta (rgba-väri 80% läpinäkyvyydellä)
-- Valkoinen, lihavoitu teksti
-- Pehmeät reunat (border-radius)
-- Elementti päällimmäisenä (korkea z-index)
-- Läpinäkyvä tausta hiiren klikkauksille (pointer-events: none)
-- Pehmeä fade-animaatio näyttämiseen/piilottamiseen (transition)
+## Käyttöliittymän logiikka
 
-## Käyttäjävuorovaikutus
+### Popup (popup.js)
+```javascript
+// Popup-ikkunan logiikka
+document.addEventListener('DOMContentLoaded', function() {
+  const textarea = document.getElementById('overlayText');
+  const saveButton = document.getElementById('saveButton');
+  const testButton = document.getElementById('testButton');
+  const status = document.getElementById('status');
 
-### Popup-ikkunan käyttö
+  // Lataa tallennettu teksti
+  chrome.storage.local.get(['overlayText'], function(result) {
+    if (result.overlayText) {
+      textarea.value = result.overlayText;
+    }
+  });
 
-1. Käyttäjä klikkaa laajennuksen kuvaketta selaimessa
-2. Popup-ikkuna avautuu
-3. Käyttäjä syöttää haluamansa tekstin tekstikenttään
-4. Käyttäjä klikkaa "Tallenna"-painiketta
-5. Tilakenttä näyttää onnistumis- tai virheviestin
+  // Tallenna teksti
+  saveButton.addEventListener('click', function() {
+    const text = textarea.value;
+    chrome.storage.local.set({ overlayText: text }, function() {
+      showStatus('Teksti tallennettu!', 'success');
+    });
+  });
 
-### Overlay-elementin käyttö
+  // Testaa näkyvyyttä
+  testButton.addEventListener('click', function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          type: 'TOGGLE_OVERLAY'
+        }, function(response) {
+          if (response && response.success) {
+            showStatus('Overlay näytetty!', 'success');
+          } else {
+            showStatus('Virhe overlay:n näyttämisessä!', 'error');
+          }
+        });
+      }
+    });
+  });
 
-1. Käyttäjä navigoi YouTube-sivulle
-2. Käyttäjä painaa CTRL+SHIFT+F3
-3. Overlay-elementti ilmestyy videon päälle fade-animaatiolla
-4. Käyttäjä painaa CTRL+SHIFT+F3 uudelleen
-5. Overlay-elementti katoaa fade-animaatiolla
+  // Näytä status
+  function showStatus(message, type) {
+    status.textContent = message;
+    status.className = 'status ' + type;
+    setTimeout(function() {
+      status.textContent = '';
+      status.className = 'status';
+    }, 3000);
+  }
+});
+```
+
+## Käyttöliittymän käyttö
+
+### Tekstin muokkaaminen
+1. Avaa laajennuksen popup-ikkuna
+2. Kirjoita haluamasi teksti tekstikenttään
+3. Klikkaa "Tallenna teksti" -nappia
+4. Teksti tallennetaan ja päivitetään kaikissa aktiivisissa välilehdissä
+
+### Overlay:n testaaminen
+1. Avaa laajennuksen popup-ikkuna
+2. Klikkaa "Testaa näkyvyyttä" -nappia
+3. Overlay näytetään 3 sekunnin ajan
+4. Overlay katoaa automaattisesti
+
+### Näppäinkomennot
+- CTRL+SHIFT+F3: Näytä/piilota overlay
 
 ## Responsiivisuus
 
