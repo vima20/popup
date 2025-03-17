@@ -1,0 +1,142 @@
+#video-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999999;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 24px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+#video-overlay.visible {
+  opacity: 1;
+}
+
+.video-overlay.debug {
+  background-color: rgba(255, 0, 0, 0.3);
+  border: 2px solid red;
+}
+
+.video-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-size: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  pointer-events: none;
+  text-align: center;
+  max-width: 80vw;
+  word-wrap: break-word;
+}
+
+.video-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.video-overlay.top {
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.video-overlay.middle {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.video-overlay.bottom {
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.video-overlay-message {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 80%;
+  margin: 0 auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-overlay .message {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    text-align: center;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-width: 80%;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.video-overlay .message.top {
+    top: 10%;
+}
+
+.video-overlay .message.middle {
+    top: 50%;
+}
+
+.video-overlay .message.bottom {
+    top: 90%;
+}
+
+.video-overlay .message.small {
+    font-size: 1.5em;
+}
+
+.video-overlay .message.medium {
+    font-size: 2.5em;
+}
+
+.video-overlay .message.large {
+    font-size: 3.5em;
+}
+
+.video-overlay .message.white {
+    color: #ffffff;
+}
+
+.video-overlay .message.yellow {
+    color: #ffff00;
+}
+
+.video-overlay .message.red {
+    color: #ff0000;
+}
+
+.video-overlay .message.green {
+    color: #00ff00;
+}
+
+#video-overlay-app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+} 

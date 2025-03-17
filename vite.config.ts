@@ -1,30 +1,48 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import { copyFileSync, mkdirSync, existsSync } from 'fs'
 
-// Luodaan erilliset konfiguraatiot jokaiselle entry pointille
+// Luodaan Chrome-laajennukselle konfiguraatio
 export default defineConfig({
   plugins: [
-    vue({
-      script: {
-        defineModel: true,
-        propsDestructure: true
+    vue(),
+    {
+      name: 'copy-files',
+      writeBundle() {
+        // Luo kansiot
+        if (!existsSync('dist/icons')) {
+          mkdirSync('dist/icons', { recursive: true });
+        }
+        
+        // Kopioi tiedostot
+        copyFileSync('src/content/content.css', 'dist/assets/content.css');
+        copyFileSync('src/popup/popup.html', 'dist/popup.html');
+        copyFileSync('manifest.json', 'dist/manifest.json');
+        copyFileSync('icons/icon16.png', 'dist/icons/icon16.png');
+        copyFileSync('icons/icon48.png', 'dist/icons/icon48.png');
+        copyFileSync('icons/icon128.png', 'dist/icons/icon128.png');
       }
-    })
+    }
   ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  },
   build: {
-    target: 'esnext',
     outDir: 'dist',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'src/popup.js'),
-        content: resolve(__dirname, 'src/content/index.ts'),
-        background: resolve(__dirname, 'src/background.ts')
+        background: resolve(__dirname, 'src/background.js'),
+        content: resolve(__dirname, 'src/content.js'),
+        popup: resolve(__dirname, 'src/popup/index.js')
       },
       output: {
         entryFileNames: '[name].js',
-        chunkFileNames: 'chunks/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
     }
   }

@@ -1,36 +1,29 @@
-# Video Overlay - Kuvaus
+# Video Overlay Laajennus
 
-## Yleiskuvaus
-Video Overlay on selainlaajennus, joka mahdollistaa tekstin näyttämisen minkä tahansa videostriimin päällä. Laajennus toimii universaalisti kaikilla sivustoilla, joissa on videostriimejä, mukaan lukien suoratoistopalvelut, videoalustat ja live-lähetykset.
-
-## Ydintoiminnallisuudet
-
-### 1. Universaali videotuki
-- Toimii kaikilla videostriimisivustoilla
-- Automaattinen video-elementin tunnistus
-- Yhtenäinen toiminnallisuus palvelusta riippumatta
-
-### 2. Helppokäyttöisyys
-- Näppäinyhdistelmä (CTRL+SHIFT+F3) tekstin näyttämiseen ja piilotamiseen
-- Popup-ikkuna tekstin muokkaamiseen
-- Käyttäjän täysi kontrolli tekstin näkyvyyteen (Manual Control)
-
-### 3. Luotettavuus
-- Dynaaminen content script injektointi
-- Automaattinen videon tilan seuranta
-- Virheidenkäsittely ja käyttäjäpalaute
-- Turvallisten URL-tarkistusten tuki (vain http/https-protokollat)
+## Kuvaus
+Chrome-laajennus, joka näyttää ohjaajan viestin videon päällä kun painat CTRL+SHIFT+9. Laajennus on suunniteltu erityisesti videoiden ohjausta varten.
 
 ## Käyttötapaukset
+1. Ohjaaja kirjoittaa viestin sivulle elementtiin, jonka id on "director-message"
+2. Kun ohjaaja haluaa näyttää viestin, painaa CTRL+SHIFT+9
+3. Viesti näkyy videon päällä 5 sekuntia
+4. Viesti voi olla mikä tahansa teksti, joka on kirjoitettu sivulle
 
-1. Muistiinpanojen näyttäminen videoiden päällä
-2. Kommenttien ja huomioiden lisääminen striimeihin
-3. Reaaliaikainen tekstin päivitys kaikille välilehdille
-4. Käyttäjän määrittelemien tekstien hallinta
+## Tekninen toteutus
+- Laajennus käyttää Chrome Extension Manifest V3
+- Content script injektoidaan sivulle ja se etsii elementin, jonka id on "director-message"
+- Viesti näytetään overlay-elementtinä sivun yläosassa
+- Overlay-elementti on tyylitelty tummalla taustalla ja valkoisella tekstillä
+- Viesti näkyy 5 sekuntia ja katoaa automaattisesti
 
-## Tekniset ominaisuudet
+## Kehitysympäristö
+- Node.js
+- Vite
+- TypeScript
+- Chrome Extension APIs
 
-- Chrome Manifest V3 yhteensopiva
-- Tehokas viestintäjärjestelmä komponenttien välillä
-- Optimoitu suorituskyky ja resurssien käyttö
-- Selkeä ja modulaarinen arkkitehtuuri 
+## Testaus
+1. Avaa testi.html sivusto
+2. Kirjoita viesti elementtiin, jonka id on "director-message"
+3. Paina CTRL+SHIFT+9
+4. Viestin pitäisi näkyä videon päällä 5 sekuntia 

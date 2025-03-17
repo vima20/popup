@@ -1,9 +1,0 @@
-
-.fade-enter-active[data-v-29b24659],
-.fade-leave-active[data-v-29b24659] {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from[data-v-29b24659],
-.fade-leave-to[data-v-29b24659] {
-  opacity: 0;
-}

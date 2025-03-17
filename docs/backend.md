@@ -1,405 +1,268 @@
-# Video Overlay - Backend
+# Backend-dokumentaatio
 
-## API Endpointit
+## WebSocket-palvelin
 
-### Content Script API
+### Yleiskuvaus
+WebSocket-palvelin on toteutettu Node.js:llä käyttäen `ws`-kirjastoa. Palvelin mahdollistaa reaaliaikaisen viestinnän ohjaajan ja katsojien välillä, sekä tarjoaa staattisia tiedostoja testausta varten.
 
-#### getStatus()
+### Palvelimen käynnistys
 ```javascript
-// Palauttaa content scriptin tilan
-{
-  success: boolean,
-  message: string,
-  data?: {
-    isActive: boolean,
-    text: string
+// server.js
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import { join } from 'path';
+
+const app = express();
+const server = createServer(app);
+const wss = new WebSocketServer({ server, path: '/ws' });
+
+// Staattisten tiedostojen tarjoilu
+app.use(express.static(join(__dirname, 'public')));
+
+server.listen(8080, () => {
+  console.log('Server running on http://localhost:8080');
+  console.log('WebSocket server running on ws://localhost:8080/ws');
+});
+```
+
+### Yhteyksien hallinta
+```javascript
+const clients = new Set();
+const viewers = new Map(); // URL -> count
+const clientProperties = new Map(); // WebSocket -> properties
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  clients.add(ws);
+  
+  // Aseta asiakkaan ominaisuudet
+  clientProperties.set(ws, {
+    isViewer: false,
+    viewerUrl: null
+  });
+
+  // Lähetä nykyinen katsojamäärä kaikille
+  broadcastViewerCount();
+});
+```
+
+## API-rajapinnat
+
+### WebSocket-viestit
+
+#### 1. Rekisteröityminen
+```typescript
+interface RegisterRequest {
+  type: 'register';
+  role: 'viewer' | 'director';
+  url?: string;  // Katsojan URL
+}
+```
+
+#### 2. Viestin näyttäminen
+```typescript
+interface ShowMessageRequest {
+  type: 'message';
+  content: string;
+  style?: {
+    position?: 'top' | 'middle' | 'bottom';
+    color?: string;
+    fontSize?: string;
+    duration?: number;
   }
 }
 ```
 
-#### updateText(text: string)
-```javascript
-// Päivittää overlay-elementin tekstin
-{
-  success: boolean,
-  message: string
-}
-```
-
-#### toggleOverlay()
-```javascript
-// Näyttää/piilottaa overlay-elementin
-{
-  success: boolean,
-  message: string
-}
-```
-
-### Background Script API
-
-#### injectContentScript(tabId: number)
-```javascript
-// Injektoroi content scriptin tiettyyn välilehteen
-{
-  success: boolean,
-  message: string
-}
-```
-
-#### updateAllTabs(text: string)
-```javascript
-// Päivittää tekstin kaikissa aktiivisissa välilehdissä
-{
-  success: boolean,
-  message: string,
-  data?: {
-    updatedTabs: number,
-    failedTabs: number
+#### 3. Katsojamäärän päivitys
+```typescript
+interface ViewerCountResponse {
+  type: 'viewerCount';
+  content: {
+    [url: string]: number;  // URL -> katsojamäärä
   }
 }
 ```
 
-## Viestintä
-
-### Popup -> Background Script
+### Viestien käsittely
 ```javascript
-// Tekstin päivitys
-{
-  type: 'UPDATE_TEXT',
-  text: string
-}
-
-// Content scriptin injektointi
-{
-  type: 'INJECT_CONTENT_SCRIPT',
-  tabId: number
-}
+ws.on('message', (data) => {
+  try {
+    const message = JSON.parse(data);
+    
+    switch (message.type) {
+      case 'register':
+        handleRegistration(ws, message);
+        break;
+      case 'message':
+        broadcastToViewers(message);
+        break;
+      default:
+        console.warn('Tuntematon viestityyppi:', message.type);
+    }
+  } catch (error) {
+    console.error('Virhe viestin käsittelyssä:', error);
+  }
+});
 ```
 
-### Background Script -> Content Script
-```javascript
-// Tekstin päivitys
-{
-  type: 'UPDATE_TEXT',
-  text: string
-}
+## Palvelinarkkitehtuuri
 
-// Tilan kysely
-{
-  type: 'GET_STATUS'
-}
-```
+### 1. Yhteyksien hallinta
+- WebSocket-yhteyksien ylläpito
+- Roolipohjainen yhteyksien hallinta (ohjaaja/katsoja)
+- URL-pohjainen katsojamäärän seuranta
 
-### Content Script -> Background Script
-```javascript
-// Content script valmis
-{
-  type: 'CONTENT_SCRIPT_READY',
-  tabId: number
-}
+### 2. Viestien välitys
+- Viestien validointi
+- Roolipohjainen viestien välitys
+- Virheenkäsittely
 
-// Virhe
-{
-  type: 'ERROR',
-  error: string,
-  tabId: number
-}
-```
+### 3. Monitorointi
+- Katsojamäärän seuranta URL-kohtaisesti
+- Yhteyksien tilan seuranta
+- Virheiden lokitus
 
 ## Virheenkäsittely
 
-### Content Script
+### 1. Yhteysongelmat
 ```javascript
-try {
-  // Toiminto
-} catch (error) {
-  chrome.runtime.sendMessage({
-    type: 'ERROR',
-    error: error.message,
-    tabId: chrome.runtime.id
-  });
+ws.on('error', (error) => {
+  console.error('WebSocket-virhe:', error);
+  
+  // Puhdistetaan yhteyden tiedot
+  const props = clientProperties.get(ws);
+  if (props && props.isViewer && props.viewerUrl) {
+    updateViewerCount(props.viewerUrl, -1);
+  }
+  
+  clients.delete(ws);
+  clientProperties.delete(ws);
+  broadcastViewerCount();
+});
+```
+
+### 2. Viestivirheet
+```javascript
+function validateMessage(message) {
+  if (!message.type) {
+    throw new Error('Viestistä puuttuu tyyppi');
+  }
+  
+  if (message.type === 'message' && !message.content) {
+    throw new Error('Näytettävästä viestistä puuttuu sisältö');
+  }
+  
+  return true;
 }
 ```
 
-### Background Script
+## Suorituskyky
+
+### 1. Yhteyksien hallinta
 ```javascript
-try {
-  // Toiminto
-} catch (error) {
-  console.error('Background Script Error:', error);
-  // Ilmoita popup-ikkunalle
+// Yhteyksien puhdistus
+setInterval(() => {
+  clients.forEach((ws) => {
+    if (ws.readyState !== WebSocket.OPEN) {
+      ws.terminate();
+    }
+  });
+}, 30000);
+```
+
+### 2. Katsojamäärän päivitys
+```javascript
+function broadcastViewerCount() {
+  const totalCount = Array.from(viewers.values()).reduce((sum, count) => sum + count, 0);
+  const viewersData = Object.fromEntries(viewers.entries());
+  
+  const message = JSON.stringify({
+    type: 'viewerCount',
+    content: viewersData
+  });
+  
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
 }
 ```
 
 ## Tietoturva
 
-### Oikeudet
-```json
-{
-  "permissions": [
-    "storage",
-    "tabs",
-    "scripting"
-  ],
-  "host_permissions": [
-    "<all_urls>"
-  ]
+### 1. Viestien validointi
+```javascript
+function sanitizeMessage(message) {
+  if (typeof message.content === 'string') {
+    message.content = message.content
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+  return message;
 }
 ```
 
-### Content Script Injektio
+### 2. Yhteyksien autentikointi
 ```javascript
-async function injectContentScript(tabId) {
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['content.js']
-    });
-    await chrome.scripting.insertCSS({
-      target: { tabId },
-      files: ['content.css']
-    });
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: error.message };
+const validOrigins = [
+  'chrome-extension://',
+  'http://localhost',
+  'https://localhost'
+];
+
+wss.on('connection', (ws, req) => {
+  const origin = req.headers.origin;
+  if (!validOrigins.some(valid => origin.startsWith(valid))) {
+    ws.terminate();
+    return;
   }
+});
+```
+
+## Monitorointi ja lokitus
+
+### 1. Katsojamäärän seuranta
+```javascript
+function logViewerStats() {
+  const totalCount = Array.from(viewers.values()).reduce((sum, count) => sum + count, 0);
+  console.log(`Aktiivisia katsojia: ${totalCount}`);
+  console.log('Katsojamäärät URL-kohtaisesti:', Object.fromEntries(viewers.entries()));
 }
+
+setInterval(logViewerStats, 60000);
 ```
 
-## Yleiskatsaus
-
-YouTube Overlay -laajennuksen "backend"-toiminnallisuus toteutetaan Chrome Extension API:n avulla. Vaikka perinteistä palvelinpuolta ei ole, background script toimii eräänlaisena backend-komponenttina, joka välittää viestejä, hallinnoi tallennusta ja koordinoi eri komponenttien toimintaa.
-
-## Background Script
-
-Background script (background.js) toimii sovelluksen "moottorina" ja vastaa seuraavista toiminnoista:
-
-1. Laajennuksen alustus ja oletusarvojen määrittely
-2. Viestien välitys eri välilehtien välillä
-3. YouTube-välilehtien etsiminen ja päivittäminen
-4. Storage-operaatioiden keskitetty hallinta
-
-### Käynnistys ja alustus
-
+### 2. Virhelokitus
 ```javascript
-// Kuuntele asentamistapahtumaa
-chrome.runtime.onInstalled.addListener(function() {
-  console.log('Background: Laajennus asennettu/päivitetty');
-  
-  // Alusta oletusteksti
-  chrome.storage.sync.get('overlayText', function(data) {
-    // Jos tekstiä ei ole vielä asetettu, aseta oletusteksti
-    if (!data.overlayText) {
-      chrome.storage.sync.set({overlayText: 'Hello world!'}, function() {
-        console.log('Background: Oletusteksti asetettu');
-      });
-    } else {
-      console.log('Background: Oletusteksti jo asetettu:', data.overlayText);
-    }
-  });
-});
-```
-
-### Storage-muutosten kuuntelu
-
-```javascript
-// Kuuntele storage muutoksia ja päivitä kaikkia välilehtiä
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-  if (namespace === 'sync' && changes.overlayText) {
-    console.log('Background: Storage muutos havaittu:', changes.overlayText.newValue);
-    
-    // Päivitä kaikki YouTube-välilehdet
-    updateAllYouTubeTabs(changes.overlayText.newValue, function(result) {
-      console.log('Background: Päivitys valmis, tulos:', result);
-    });
-  }
-});
-```
-
-### Viestien vastaanotto
-
-```javascript
-// Kuuntele viestejä popupilta
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  console.log('Background: Viesti vastaanotettu:', message, 'lähettäjä:', sender?.tab?.url || 'ei välilehteä');
-  
-  try {
-    if (message.type === 'updateAllTabs') {
-      console.log('Background: Päivitetään kaikki YouTube-välilehdet');
-      
-      // Päivitä kaikki YouTube-välilehdet
-      updateAllYouTubeTabs(message.text, function(result) {
-        console.log('Background: Päivitys valmis, vastaus:', result);
-        try {
-          sendResponse(result);
-        } catch (e) {
-          console.error('Background: Virhe lähettäessä vastausta:', e);
-        }
-      });
-      
-      // Ilmoita että vastaus lähetetään asynkronisesti
-      return true;
-    }
-    
-    // Jos viestityyppi ei ole tunnettu
-    console.warn('Background: Tuntematon viestityyppi:', message.type);
-    sendResponse({success: false, error: 'Tuntematon viestityyppi'});
-  } catch (e) {
-    console.error('Background: Virhe viestin käsittelyssä:', e);
-    sendResponse({success: false, error: e.message});
-  }
-  
-  return false;
-});
-```
-
-### Välilehtien päivitys
-
-```javascript
-// Päivitä kaikkien YouTube-välilehtien teksti
-function updateAllYouTubeTabs(text, callback) {
-  console.log('Background: Päivitetään kaikki YouTube-välilehdet tekstillä:', text);
-  
-  if (!callback || typeof callback !== 'function') {
-    callback = function() {};
-  }
-  
-  // Etsi kaikki YouTube-välilehdet
-  chrome.tabs.query({url: "*://*.youtube.com/*"}, function(tabs) {
-    console.log('Background: YouTube-välilehtiä löytyi:', tabs.length);
-    
-    if (tabs.length === 0) {
-      callback({success: true, updated: 0, total: 0, message: 'Ei avoimia YouTube-välilehtiä'});
-      return;
-    }
-    
-    let updatedCount = 0;
-    let errorCount = 0;
-    let pendingCount = tabs.length;
-    
-    // Lähetä päivitysviesti jokaiselle välilehdelle
-    for (let i = 0; i < tabs.length; i++) {
-      const tab = tabs[i];
-      
-      try {
-        chrome.tabs.sendMessage(tab.id, {
-          action: 'updateText',
-          text: text
-        }, function(response) {
-          pendingCount--;
-          
-          if (chrome.runtime.lastError) {
-            console.warn('Background: Virhe välilehdellä', tab.id, ':', chrome.runtime.lastError.message);
-            errorCount++;
-          } else if (response && response.success) {
-            console.log('Background: Välilehti', tab.id, 'päivitetty onnistuneesti');
-            updatedCount++;
-          } else {
-            console.warn('Background: Päivitys epäonnistui välilehdellä', tab.id);
-            errorCount++;
-          }
-          
-          // Jos tämä oli viimeinen käsiteltävä välilehti, kutsu callback-funktiota
-          if (pendingCount === 0) {
-            callback({
-              success: true,
-              updated: updatedCount,
-              errors: errorCount,
-              total: tabs.length
-            });
-          }
-        });
-      } catch (e) {
-        console.error('Background: Poikkeus päivitettäessä välilehteä', tab.id, e);
-        pendingCount--;
-        errorCount++;
-        
-        // Jos tämä oli viimeinen käsiteltävä välilehti, kutsu callback-funktiota
-        if (pendingCount === 0) {
-          callback({
-            success: true,
-            updated: updatedCount,
-            errors: errorCount,
-            total: tabs.length
-          });
-        }
-      }
-    }
+function logError(error, context = {}) {
+  const timestamp = new Date().toISOString();
+  console.error({
+    timestamp,
+    error: error.message,
+    stack: error.stack,
+    ...context
   });
 }
 ```
 
-## Chrome API Rajapinnat
+## Kehitysympäristö
 
-### Storage API
+### 1. Käynnistys
+```bash
+# Kehitysympäristö
+cd server
+npm install
+node server.js
 
-Käytetään käyttäjän tekstin tallentamiseen ja hakemiseen:
-
-```javascript
-// Tallenna teksti
-chrome.storage.sync.set({overlayText: 'Uusi teksti'});
-
-// Hae teksti
-chrome.storage.sync.get('overlayText', function(data) {
-  console.log(data.overlayText);
-});
-
-// Kuuntele muutoksia
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-  // Reagoi muutoksiin
-});
+# Palvelin käynnistyy osoitteeseen:
+# http://localhost:8080
+# WebSocket: ws://localhost:8080/ws
 ```
 
-### Tabs API
-
-Käytetään välilehtien hakemiseen ja viestien lähettämiseen:
-
-```javascript
-// Etsi YouTube-välilehdet
-chrome.tabs.query({url: "*://*.youtube.com/*"}, function(tabs) {
-  // Käsittele välilehtiä
-});
-
-// Lähetä viesti välilehdelle
-chrome.tabs.sendMessage(tabId, {action: 'updateText', text: 'Uusi teksti'});
-```
-
-### Runtime API
-
-Käytetään viestien vastaanottamiseen ja lähettämiseen:
-
-```javascript
-// Kuuntele viestejä
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  // Käsittele viestit
-});
-
-// Lähetä viesti
-chrome.runtime.sendMessage({type: 'updateAllTabs', text: 'Uusi teksti'});
-```
-
-## Turvallisuusnäkökohdat
-
-### Oikeudet
-
-Manifest.json-tiedostossa määritellään, mihin rajapintoihin ja sivustoihin laajennuksella on oikeus:
-
-```json
-"permissions": ["storage", "tabs"],
-"host_permissions": ["*://*.youtube.com/*"]
-```
-
-Näin varmistetaan, että laajennus toimii vain YouTube-sivustoilla.
-
-### Content Security Policy (CSP)
-
-Chrome Manifest V3 käyttää tiukempia CSP-sääntöjä, jotka estävät inline-skriptit ja eval()-funktion käytön. Tämä parantaa laajennuksen turvallisuutta estämällä mahdolliset XSS-hyökkäykset.
-
-## Suorituskyky
-
-Background script on service worker, joka:
-- Käynnistyy tarvittaessa (on-demand)
-- Voi pysähtyä, kun sitä ei tarvita
-- Käynnistyy uudelleen viestien tai tapahtumien käsittelemiseksi
-
-Tämä parantaa sovelluksen suorituskykyä ja vähentää resurssien käyttöä. 
+### 2. Ympäristömuuttujat
+```env
+# .env
+PORT=8080
+``` 

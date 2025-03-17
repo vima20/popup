@@ -1,0 +1,22 @@
+:root {
+  --primary-color: #4CAF50;
+  --primary-hover: #45a049;
+  --error-bg: #f8d7da;
+  --error-text: #721c24;
+  --success-bg: #d4edda;
+  --success-text: #155724;
+  --border-color: #ddd;
+  --text-color: #2c3e50;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text-color);
+  background-color: white;
+}
+
+#app {
+  min-width: 300px;
+  min-height: 200px;
+} 

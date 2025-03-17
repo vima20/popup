@@ -1,111 +1,42 @@
-# Video Overlay - Tehtävälista
+# Todo-lista
 
-## Ominaisuudet
+## Frontend
+✅ Chrome Extension perusrakenne
+✅ Popup-ikkuna
+✅ Overlay-elementti
+✅ WebSocket-yhteys
+✅ Näppäinkomennot
+✅ Tyylit
 
-### Ydinominaisuudet
-
-- [✅] Overlay-elementin luominen ja näyttäminen videoiden päällä
-- [✅] Näppäinyhdistelmä (CTRL+SHIFT+F3) elementin näyttämiseen
-- [✅] Käyttäjän määrittelemän tekstin syöttäminen popup-ikkunassa
-- [✅] Tekstin tallentaminen Chrome storage -rajapinnan avulla
-- [✅] Automaattinen tekstin päivitys kaikille avoimille välilehdille
-- [✅] Virheidenkäsittely ja käyttäjäpalaute
-- [✅] Popup-ikkunan käyttöliittymä
-- [❌] ~Automaattinen overlay-piilotus 3 sekunnin kuluttua~ (Korvattu käyttäjän täydellä kontrollilla v6.1.0)
-- [✅] Turvallisten URL-tarkistusten tuki (vain http/https-protokollat)
-- [✅] Käyttäjän täysi kontrolli tekstin näkyvyyteen
-
-### Parannukset ja kehitysideat
-
-- [⏳] Useamman tekstin tallentaminen ja valitseminen
-- [❌] Tekstin ulkoasun mukauttaminen (fontti, koko, väri)
-- [❌] Tekstin sijainnin säätäminen videolla
-- [❌] Animaatioiden ja tehosteiden lisääminen
-- [❌] Ajastettu näyttäminen/piilottaminen
-- [❌] Tekstin tallentaminen tietyille videoille (per-video-setting)
-- [❌] Tuki kuvien ja emojien lisäämiselle
-
-## Tekninen kehitys
-
-- [✅] Manifest V3 yhteensopivuus
-- [✅] Content scriptin lataaminen document_start-vaiheessa
-- [✅] Luotettava viestinvälitys komponenttien välillä
-- [✅] Storage-muutosten kuuntelu
-- [✅] Viestikuuntelijan optimoitu sijoitus content scriptissä
-- [✅] Content scriptin latautumisilmoitukset background scriptille
-- [✅] Monivaiheinen viestintäjärjestelmä virheiden estämiseksi
-- [✅] Välilehtien tilan seuranta
-- [✅] Dynaaminen content scriptin injektointi Chrome Scripting API:lla (V5.0)
-- [✅] API content scriptin tilan kyselyyn (V5.0)
-- [✅] Selkeämpi moduulirakenne ja parannetut virhelokitukset (V5.0)
-- [✅] Tiedostorakenteen organisointi ja dist-hakemisto (V5.0)
-- [⏳] Suorituskyvyn optimointi
-- [⏳] Koodin refaktorointi ja organisointi
-- [❌] Yksikkötestien lisääminen
-- [❌] TypeScript-migraatio
-- [❌] Build-prosessin luominen (src → dist)
-
-## Käyttöliittymä
-
-- [✅] Popup-ikkunan perustyylitys
-- [✅] Overlay-elementin tyylit
-- [✅] Tilaviestit käyttäjälle
-- [✅] Debug-ominaisuudet kehittäjille
-- [❌] Asetussivu lisäasetuksille
-- [❌] Tumma teema popup-ikkunalle
-- [❌] Responsiivisuuden parantaminen erilaisille näyttökoille
-
-## Dokumentaatio
-
-- [✅] README.md perustiedoilla
-- [✅] Arkkitehtuuri- ja tekninen dokumentaatio
-- [✅] Käyttöliittymädokumentaatio
-- [✅] Versiohistoria ja muutosloki
-- [✅] Vianetsintäopas (V5.0)
-- [❌] Käyttöohjeet loppukäyttäjille
-- [❌] Koodikommentit ja JSDocs
-
-## Jakelu
-
-- [✅] Toimiva kehitysversion paketointi
-- [❌] Chrome Web Store -julkaisu
-- [❌] Firefox-version luominen
-- [❌] Edge-version luominen
-- [❌] Versiointijärjestelmä
-
-## Valmistuneet ominaisuudet (V5.0)
-
-- [✅] Dynaaminen content scriptin injektointi Chrome Scripting API:lla
-- [✅] Monivaiheinen viestintä popup → background → content script
-- [✅] Content scriptin tila-API ja tilakyselyt
-- [✅] Selkeämmät ja kattavammat lokiviestit
-- [✅] Tiedostorakenteen uudelleenorganisointi (dist/src)
-- [✅] Päivitetty dokumentaatio
-
-## Seuraavat prioriteetit
-
-1. Build-prosessin luominen (src → dist automaattinen koonti)
-2. TypeScript-migraatio paremman tyyppitarkistuksen vuoksi
-3. Asetussivu lisäasetuksille (ulkoasun mukauttaminen)
-4. Useamman tekstin tallentaminen ja valitseminen
-5. Chrome Web Store -julkaisu
-
-## Laajennuksen toiminnallisuus
-✅ Video-overlay perustoiminnallisuus
-✅ Tekstin muokkaus popup-ikkunasta
-✅ Dynaaminen content scriptin injektointi
-❌ Overlay kaikille videostriimeille:
-   - Toimii kaikilla videostriimisivustoilla
-   - Sama käyttökokemus palvelusta riippumatta
-   - Yksinkertainen toteutus ilman palvelukohtaisia säätöjä
+## Backend
+✅ WebSocket-palvelin
+✅ Yhteyksien hallinta
+✅ Viestien välitys
+✅ Katsojamäärän seuranta
+✅ Staattisten tiedostojen tarjoilu
+✅ Virheenkäsittely
 
 ## Testaus
-✅ Perustoiminnallisuuden testaus
-❌ Testaus eri striimisivustoilla:
-   - Toimivuus yleisimmillä videostriimeillä
-   - Yhtenäinen käyttökokemus
-   - Suorituskyvyn varmistus
+✅ WebSocket-yhteyden testaus
+✅ Viestien välityksen testaus
+✅ Katsojamäärän seurannan testaus
+✅ Overlay-elementin testaus
+✅ Näppäinkomentojen testaus
 
-## Julkaisu
-✅ GitHub repositorio
-❌ Chrome Web Store julkaisu 
+## Dokumentaatio
+✅ Arkkitehtuuridokumentaatio
+✅ Backend-dokumentaatio
+✅ Frontend-dokumentaatio
+✅ Käyttöohjeet
+
+## Seuraavat tehtävät
+1. Lisää virheenkäsittely WebSocket-yhteydelle
+2. Lisää yhteyden uudelleenmuodostus
+3. Lisää viestien validointi
+4. Lisää katsojamäärän visualisointi
+5. Lisää viestien historia
+6. Lisää viestien tyylit
+7. Lisää viestien sijainti
+8. Lisää viestien kesto
+9. Lisää viestien animaatiot
+10. Lisää viestien äänitiedot 

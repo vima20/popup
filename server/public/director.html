@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Video Ohjaajan Työpöytä</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .message-form {
+            margin-bottom: 20px;
+        }
+        .message-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .style-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .style-control {
+            display: flex;
+            flex-direction: column;
+        }
+        .style-control label {
+            margin-bottom: 5px;
+        }
+        .style-control select, .style-control input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1976D2;
+        }
+        .viewers {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .viewer-count {
+            font-weight: bold;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Video Ohjaajan Työpöytä</h2>
+        
+        <div class="status">
+            Yhteyden tila: <span id="connection-status">Ei yhteyttä</span>
+        </div>
+
+        <div class="viewers">
+            Katsojia: <span id="viewer-count" class="viewer-count">0</span>
+            <div id="viewer-list"></div>
+        </div>
+
+        <div class="message-form">
+            <textarea id="message-input" class="message-input" rows="3" placeholder="Kirjoita viesti katsojille..."></textarea>
+            
+            <div class="style-controls">
+                <div class="style-control">
+                    <label for="position">Sijainti:</label>
+                    <select id="position">
+                        <option value="top">Ylhäällä</option>
+                        <option value="middle">Keskellä</option>
+                        <option value="bottom">Alhaalla</option>
+                    </select>
+                </div>
+                
+                <div class="style-control">
+                    <label for="color">Väri:</label>
+                    <select id="color">
+                        <option value="white">Valkoinen</option>
+                        <option value="yellow">Keltainen</option>
+                        <option value="red">Punainen</option>
+                        <option value="green">Vihreä</option>
+                    </select>
+                </div>
+                
+                <div class="style-control">
+                    <label for="size">Koko:</label>
+                    <select id="size">
+                        <option value="small">Pieni</option>
+                        <option value="medium">Keskikoko</option>
+                        <option value="large">Suuri</option>
+                    </select>
+                </div>
+                
+                <div class="style-control">
+                    <label for="duration">Näytön aika (sekuntia):</label>
+                    <input type="number" id="duration" value="5" min="1" max="60">
+                </div>
+            </div>
+
+            <button id="send-button">Lähetä Viesti</button>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let reconnectAttempts = 0;
+        const MAX_RECONNECT_ATTEMPTS = 5;
+        const RECONNECT_DELAY = 5000;
+        
+        const messageInput = document.getElementById('message-input');
+        const connectionStatus = document.getElementById('connection-status');
+        const viewerCount = document.getElementById('viewer-count');
+
+        function connect() {
+            if (ws?.readyState === WebSocket.OPEN) return;
+            
+            try {
+                ws = new WebSocket('ws://localhost:3000/ws');
+
+                ws.onopen = () => {
+                    console.log('WebSocket connected');
+                    connectionStatus.textContent = 'Yhdistetty';
+                    connectionStatus.style.color = 'green';
+                    reconnectAttempts = 0;
+
+                    // Lähetä rekisteröitymisviesti
+                    ws.send(JSON.stringify({
+                        type: 'register',
+                        role: 'director'
+                    }));
+                };
+
+                ws.onclose = (event) => {
+                    console.log('WebSocket disconnected:', event.code, event.reason);
+                    connectionStatus.textContent = 'Yhteys katkesi';
+                    connectionStatus.style.color = 'red';
+                    ws = null;
+
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectAttempts++;
+                        setTimeout(() => {
+                            console.log(`Attempting to reconnect (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                            connect();
+                        }, RECONNECT_DELAY);
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    connectionStatus.textContent = 'Virhe yhteydessä';
+                    connectionStatus.style.color = 'red';
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('Received message:', data);
+                        
+                        if (data.type === 'viewerCount') {
+                            try {
+                                // Päivitä katsojamäärä
+                                const stats = typeof data.content === 'string' ? 
+                                    JSON.parse(data.content) : data.content;
+                                
+                                let totalViewers = 0;
+                                for (const url in stats) {
+                                    totalViewers += stats[url];
+                                }
+                                viewerCount.textContent = totalViewers;
+
+                                // Näytä yksityiskohtaiset tiedot
+                                const viewerList = document.getElementById('viewer-list');
+                                if (viewerList) {
+                                    viewerList.innerHTML = '';
+                                    for (const [url, count] of Object.entries(stats)) {
+                                        const item = document.createElement('div');
+                                        item.textContent = `${url}: ${count} katsojaa`;
+                                        viewerList.appendChild(item);
+                                    }
+                                }
+                            } catch (parseError) {
+                                console.error('Error parsing viewer stats:', parseError);
+                                viewerCount.textContent = '0';
+                            }
+                        } else if (data.type === 'error') {
+                            console.error('Server error:', data.content);
+                            if (data.content) {
+                                alert('Virhe: ' + data.content);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error parsing message:', error);
+                    }
+                };
+            } catch (error) {
+                console.error('Error initializing WebSocket:', error);
+                connectionStatus.textContent = 'Virhe yhteyden muodostamisessa';
+                connectionStatus.style.color = 'red';
+                
+                if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                    reconnectAttempts++;
+                    setTimeout(connect, RECONNECT_DELAY);
+                }
+            }
+        }
+
+        // Yhdistä heti
+        connect();
+
+        // Viestin lähetys
+        document.getElementById('send-button').addEventListener('click', () => {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            const position = document.getElementById('position').value;
+            const color = document.getElementById('color').value;
+            const size = document.getElementById('size').value;
+            const duration = parseInt(document.getElementById('duration').value) || 5;
+
+            // Muunnetaan fonttikokoasetukset pikseleihin
+            let fontSize;
+            switch (size) {
+                case 'small':
+                    fontSize = '16px';
+                    break;
+                case 'medium':
+                    fontSize = '24px';
+                    break;
+                case 'large':
+                    fontSize = '36px';
+                    break;
+                default:
+                    fontSize = '24px';
+            }
+
+            const data = {
+                type: 'message',
+                content: message,
+                style: {
+                    position: position,
+                    color: color,
+                    fontSize: fontSize,
+                    duration: duration * 1000 // Muunnetaan sekunneista millisekunneiksi
+                }
+            };
+
+            try {
+                if (ws?.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify(data));
+                    messageInput.value = '';
+                } else {
+                    alert('Ei yhteyttä palvelimeen');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                alert('Virhe viestin lähetyksessä');
+            }
+        });
+
+        // Enter-näppäin lähettää viestin
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                document.getElementById('send-button').click();
+            }
+        });
+
+        // Muunna koot pikseliarvoiksi
+        function getFontSize(size) {
+            switch(size) {
+                case 'small': return '16px';
+                case 'medium': return '24px';
+                case 'large': return '32px';
+                default: return '24px';
+            }
+        }
+    </script>
+</body>
+</html> 

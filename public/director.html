@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ohjaajan viestit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .message-container {
+            margin: 20px 0;
+        }
+        #director-message {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ohjaajan viestit</h1>
+    <div class="message-container">
+        <h2>Nykyinen viesti</h2>
+        <div id="director-message">Tämä on ohjaajan viesti!</div>
+        <button onclick="updateMessage()">Päivitä viesti</button>
+    </div>
+
+    <script>
+        function updateMessage() {
+            const messageElement = document.getElementById('director-message');
+            const newMessage = prompt('Syötä uusi viesti:', messageElement.textContent);
+            if (newMessage !== null) {
+                messageElement.textContent = newMessage;
+            }
+        }
+    </script>
+</body>
+</html> 

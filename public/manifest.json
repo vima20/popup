@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Video Overlay",
+  "version": "1.0.0",
+  "description": "Näyttää viestin videon päällä kun painat CTRL+SHIFT+9",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "commands"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "commands": {
+    "toggle-overlay": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+9",
+        "mac": "Command+Shift+9"
+      },
+      "description": "Näytä/piilota overlay-viesti"
+    }
+  }
+} 

@@ -31,18 +31,16 @@ document.removeEventListener = dom.window.document.removeEventListener.bind(dom.
 
 // Mock Chrome API
 global.chrome = {
-  storage: {
-    sync: {
-      get: vi.fn().mockResolvedValue({ overlayText: 'Hello world!' }),
-      set: vi.fn().mockResolvedValue(undefined)
-    }
-  },
   runtime: {
-    sendMessage: vi.fn(),
     onMessage: {
       addListener: vi.fn(),
       removeListener: vi.fn()
-    }
+    },
+    sendMessage: vi.fn()
+  },
+  tabs: {
+    query: vi.fn(),
+    sendMessage: vi.fn()
   }
 } as any
 

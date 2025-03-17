@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Testisivu (Katsoja)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #messages { 
+            border: 1px solid #ccc; 
+            padding: 10px; 
+            height: 300px; 
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Testisivu (Katsoja)</h2>
+    <div id="status">Yhteyden tila: <span id="connection-status">Ei yhteyttä</span></div>
+    <div id="messages"></div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const statusSpan = document.getElementById('connection-status');
+        let ws;
+        let reconnectAttempts = 0;
+        const MAX_RECONNECT_ATTEMPTS = 5;
+        const RECONNECT_DELAY = 5000;
+
+        function connect() {
+            if (ws?.readyState === WebSocket.OPEN) return;
+
+            try {
+                ws = new WebSocket('ws://localhost:3000/ws');
+
+                ws.onopen = () => {
+                    statusSpan.textContent = 'Yhdistetty';
+                    statusSpan.className = 'success';
+                    addMessage('Yhteys muodostettu', 'success');
+                    reconnectAttempts = 0;
+                    
+                    // Lähetä rekisteröitymisviesti
+                    const registerMessage = {
+                        type: 'register',
+                        role: 'viewer',
+                        url: window.location.href
+                    };
+                    
+                    ws.send(JSON.stringify(registerMessage));
+                    addMessage('Rekisteröity katsojana: ' + window.location.href);
+                };
+
+                ws.onclose = (event) => {
+                    statusSpan.textContent = 'Yhteys katkaistu';
+                    statusSpan.className = 'error';
+                    addMessage('Yhteys katkaistu: ' + event.code + ' ' + event.reason, 'error');
+                    ws = null;
+
+                    if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                        reconnectAttempts++;
+                        const delay = RECONNECT_DELAY * Math.pow(2, reconnectAttempts - 1);
+                        addMessage(`Yritetään yhdistää uudelleen ${delay/1000} sekunnin kuluttua (yritys ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+                        setTimeout(connect, delay);
+                    } else {
+                        addMessage('Yhteyden muodostaminen epäonnistui maksimimäärän yrityksiä jälkeen', 'error');
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    addMessage('WebSocket virhe', 'error');
+                    console.error('WebSocket error:', error);
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addMessage('Vastaanotettu: ' + JSON.stringify(data));
+                        
+                        // Käsittele viesti tyypin mukaan
+                        switch (data.type) {
+                            case 'message':
+                                // Näytä viesti overlay-elementissä
+                                showMessage(data.content, data.style);
+                                break;
+                            case 'register':
+                                // Rekisteröinti-vahvistus, ei tarvitse tehdä mitään
+                                addMessage(`Rekisteröinti vastaanotettu roolille: ${data.role}`);
+                                break;
+                            case 'viewerCount':
+                                // Päivitä aktiivisten katsojien määrä
+                                addMessage(`Aktiivisia katsojia: ${data.content}`);
+                                break;
+                            case 'error':
+                                addMessage('Palvelimen virhe: ' + data.content, 'error');
+                                break;
+                            default:
+                                addMessage(`Vastaanotettu viesti tyyppiä: ${data.type}`);
+                        }
+                    } catch (e) {
+                        addMessage('Virheellinen viesti: ' + event.data, 'error');
+                        console.error('Error parsing message:', e);
+                    }
+                };
+            } catch (error) {
+                addMessage('Virhe yhteyden muodostamisessa: ' + error.message, 'error');
+                console.error('Connection error:', error);
+                
+                if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                    reconnectAttempts++;
+                    const delay = RECONNECT_DELAY * Math.pow(2, reconnectAttempts - 1);
+                    setTimeout(connect, delay);
+                }
+            }
+        }
+
+        function showMessage(content, style = {}) {
+            // Luo tai hae overlay-elementti
+            let overlay = document.getElementById('message-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'message-overlay';
+                overlay.style.position = 'fixed';
+                overlay.style.zIndex = '9999';
+                overlay.style.padding = '10px 20px';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                overlay.style.color = 'white';
+                overlay.style.borderRadius = '5px';
+                overlay.style.transition = 'opacity 0.3s ease';
+                document.body.appendChild(overlay);
+            }
+
+            // Aseta tyylit
+            if (style.position === 'top') {
+                overlay.style.top = '10%';
+                overlay.style.left = '50%';
+                overlay.style.transform = 'translateX(-50%)';
+            } else if (style.position === 'bottom') {
+                overlay.style.bottom = '10%';
+                overlay.style.left = '50%';
+                overlay.style.transform = 'translateX(-50%)';
+            } else {
+                overlay.style.top = '50%';
+                overlay.style.left = '50%';
+                overlay.style.transform = 'translate(-50%, -50%)';
+            }
+
+            overlay.style.color = style.color || 'white';
+            overlay.style.fontSize = style.fontSize || '24px';
+            overlay.textContent = content;
+            overlay.style.display = 'block';
+            overlay.style.opacity = '1';
+
+            // Piilota viesti määritetyn ajan jälkeen
+            let duration = style.duration || 5000; // Oletusarvo 5000 ms
+            
+            // Varmista, että duration on millisekunteina (vähintään 1000 ms)
+            if (duration < 1000) duration = duration * 1000;
+            
+            addMessage(`Näytetään viesti: "${content}" (${duration}ms)`);
+            
+            setTimeout(() => {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    addMessage('Viesti piilotettu');
+                }, 300);
+            }, duration);
+        }
+
+        function addMessage(message, type = '') {
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            if (type) div.className = type;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Yhdistä heti kun sivu latautuu
+        connect();
+    </script>
+</body>
+</html> 
